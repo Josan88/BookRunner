@@ -1,0 +1,277 @@
+* {
+    box-sizing: border-box;
+}
+
+body, html, .container-fluid {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.logo {
+    min-width: 50px;
+    height: 5vh;
+}
+
+@keyframes fadeSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInBackground {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.btn-secondary {
+  background-color: #ff6f61;
+  color: white;
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.landing_page {
+  width: 100%;
+  min-height: 95vh;
+  background: url('images/landing_page.png') center center / cover no-repeat;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  animation: fadeInBackground 2s ease-in-out;
+  margin: 0;
+  padding: 2rem 1rem; /* spacing for small screens */
+}
+
+.product_header {
+  width: 100%;
+  height: 20vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  animation: fadeInBackground 2s ease-in-out;
+  padding: 2rem 1rem;
+  margin-top: 2rem;
+  background: radial-gradient(
+    circle at center,
+    #4facfe 0%,      /* Dark Blue (Center) */
+    rgba(173, 216, 230, 0.8) 70%,  /* Light Blue (Mid) */
+    #0d6efd 100%  /* Near-White (Edges) */
+  ); 
+}
+
+.text-container {
+  width: 100%;
+  max-width: 650px;
+  word-wrap: break-word;
+  animation: fadeSlideUp 1s ease-out 0.5s both;
+  padding: 1rem;
+}
+
+.text-container a {
+  animation: fadeSlideUp 1s ease-out 1s both;
+}
+
+.author-text {
+    font-weight: 400;
+    color: #808080;
+}
+
+.hover-opacity:hover {
+    opacity: 0.7;
+    cursor: pointer;
+  }
+
+.hover-opacity:active {
+    transform: scale(0.95);
+    box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+  }
+
+.footer {
+    background-color: black;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+}
+
+/* Hide arrows in number input for Chrome, Safari, Edge */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide arrows in number input for Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.explore-dots i {
+  font-size: 3rem !important;
+  vertical-align: middle;
+}
+
+.bookrunner-bg {
+  min-height: 100vh;
+  width: 100%;
+  background-color: #f6f8fa;
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Pagination Container */
+.pagination {
+  gap: 6px;
+  margin-bottom: 6rem;
+}
+
+/* Page Items */
+.page-item {
+  margin: 0 2px;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Page Links */
+.page-link {
+  color: #3b3b5c;
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  padding: 8px 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+/* Active/Hover States */
+.page-item.active .page-link {
+  background: #0d6efd;
+  border-color: #0d6efd;
+  color: white;
+  box-shadow: 0 2px 5px rgba(30, 58, 138, 0.3);
+}
+
+.page-link:hover {
+  background-color: #e9ecef;
+  color: #1E3A8A;
+  transform: translateY(-2px);
+}
+
+/* Prev/Next Buttons */
+.prev-item .page-link,
+.next-item .page-link {
+  background-color: #0d6efd;
+  color: white;
+  min-width: 90px;
+}
+
+.prev-item .page-link:hover,
+.next-item .page-link:hover {
+  background-color: #0d6efd;
+  transform: translateY(-2px);
+}
+
+/* Disabled State */
+.page-item.disabled .page-link {
+  background-color: #f8f9fa;
+  color: #adb5bd;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.fixed-img-height {
+    height: 300px;
+    object-fit: cover;
+    width: 100%;
+}
+
+/* Theme accent for + and - buttons */
+.btn-theme-accent {
+  background-color: #ff6f61;
+  color: #fff;
+  border: none;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.btn-theme-accent:hover, .btn-theme-accent:focus {
+  background-color: #ff3b1f;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(255, 111, 97, 0.15);
+}
+
+/* Theme primary for Add to Cart */
+.btn-theme-primary {
+  background: linear-gradient(135deg, #0d6efd, #4facfe);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.btn-theme-primary:hover, .btn-theme-primary:focus {
+  background-color: #084298;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.15);
+}
+
+/* Quantity input theme for Book page */
+.quantity-input,
+input[type="number"].quantity-input {
+  background: #f8fafc;
+  color: #3b3b5c;
+  border: 2px solid #ff6f61;
+  border-radius: 0;
+  font-weight: 600;
+  font-size: 1.1rem;
+  box-shadow: none;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.quantity-input:focus {
+  border-color: #0d6efd;
+  outline: none;
+  box-shadow: 0 0 0 2px #e0e7ff;
+}
+
+/* Book Details Table Renovation */
+.table th {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #3b3b5c;
+  border-radius: 0.5rem 0 0 0.5rem;
+  vertical-align: middle;
+}
+
+.table td {
+  background: #fff;
+  color: #22223b;
+  font-size: 1rem;
+  vertical-align: middle;
+}
+
+.table tr {
+  border-bottom: 1px solid #e0e7ff;
+}
+.table tr:last-child {
+  border-bottom: none;
+}
+.badge.bg-primary {
+  background: #0d6efd !important;
+}
+.badge.bg-secondary {
+  background: #ff6f61 !important;
+}
+
+.book-synopsis {
+            min-height: 550px;
+        }

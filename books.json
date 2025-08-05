@@ -1,0 +1,508 @@
+[
+  { 
+    "title": "One Piece",
+    "author": "Eiichiro Oda",
+    "genre": ["Adventure", "Fantasy"],
+    "type": "manga",
+    "keywords": ["pirates", "treasure", "friendship", "award winning title"],
+    "price": 30.00,
+    "description": "As a child, Monkey D. Luffy was inspired to become a pirate by listening to the tales of the buccaneer \"Red-Haired\" Shanks. But his life changed when Luffy accidentally ate the Gum-Gum Devil Fruit and gained the power to stretch like rubber...at the cost of never being able to swim again! Years later, still vowing to become the king of the pirates, Luffy sets out on his adventure...one guy alone in a rowboat, in search of the legendary \"One Piece,\" said to be the greatest treasure in the world......Rated:T",
+    "publisher": "Shueisha",
+    "volumes": [
+      {
+        "volumeNumber": 1,
+        "cover": "images/one_piece_vol_1.jpg",
+        "page_count": 200,
+        "release_date": "1997-07-22"
+      },
+      {
+        "volumeNumber": 2,
+        "cover": "images/one_piece_vol_2.jpg",
+        "page_count": 192,
+        "release_date": "1997-10-22"
+
+      },
+      {
+        "volumeNumber": 3,
+        "cover": "images/one_piece_vol_3.jpg",
+        "page_count": 192,
+        "release_date": "1998-01-22"
+      }
+    ]
+  },
+  {
+  "title": "Solo Leveling",
+  "author": "Chugong",
+  "genre": ["Action", "Fantasy"],
+  "keywords": ["dungeon", "hunter", "leveling", "power-up", "bestsellers"],
+  "type": "light novel",
+  "price": 20.00,
+  "publisher": "Yen Press",
+  "description": "In a world where hunters battle deadly monsters emerging from mysterious gates, Jinwoo Sung is known as the weakest of them all. But when he's left for dead in a hidden dungeon, he gains an incredible power—the ability to level up in strength beyond any known limits. Now, he must climb his way from E-rank to the top, one battle at a time.",
+  "volumes": [
+    {
+      "volumeNumber": 1,
+      "cover": "images/sl_vol_1.jpg",
+      "page_count": 192,
+      "release_date": "2021-03-02"
+    },
+    {
+      "volumeNumber": 2,
+      "cover": "images/sl_vol_2.jpg",
+      "page_count": 192,
+      "release_date": "2021-07-20"
+    }
+  ]
+},
+
+  {
+    "title": "Hunter x Hunter",
+    "author": "Yoshihiro Togashi",
+    "genre": ["Adventure"],
+    "type": "manga",
+    "keywords": ["hunters", "nen", "exam", "friendship", "battles"],
+    "description": "Gon Freecss aspires to become a Hunter, a specialist who takes on dangerous tasks such as discovering uncharted territories or locating rare items. He hopes to find his father, who is also a Hunter, and learn why he left him. Gon embarks on an adventure to become a Hunter and find his father.",
+    "publisher": "Shueisha",
+    "price": 30.00,
+    "volumes": [
+      {
+        "volumeNumber": 1,
+        "cover": "images/hxh_vol_1.jpg",
+        "page_count": 192,
+        "release_date": "1998-06-04"
+      },
+      {
+        "volumeNumber": 2,
+        "cover": "images/hxh_vol_2.jpg",
+        "page_count": 192,
+        "release_date": "1998-09-04"
+      },
+      {
+        "volumeNumber": 3,
+        "cover": "images/hxh_vol_3.jpg",
+        "page_count": 192,
+        "release_date": "1998-12-04"
+      }
+    ]
+  },
+  {
+    "title": "Made in Abyss",
+    "author": "Akihito Tsukushi",
+    "genre": ["Adventure", "Mystery", "Sci-Fi"],
+    "keywords": ["abyss", "exploration"],
+    "type": "manga",
+    "description": "In an age when the corners of the world have been scoured for their secrets, only one place remains unexplored--a massive cave system known as the Abyss, filled with monstrous creatures and lost relics. Those who delve into its depths are known as Cave Raiders. A young orphan named Riko dreams of following in her mother's footsteps as a Cave Raider, and when she meets a strange robot while exploring the Abyss, she is one perilous step closer to achieving her goal!",
+    "publisher": "Seven Seas Entertainment",
+    "price": 23.00,
+    "volumes": [
+      {
+        "volumeNumber": 1,
+        "cover": "images/mia_vol_1.jpg",
+        "page_count": 192,
+        "release_date": "2012-10-01"
+      },
+      {
+        "volumeNumber": 2,
+        "cover": "images/mia_vol_2.jpg",
+        "page_count": 192,
+        "release_date": "2013-02-01"
+      }
+    ]
+  },
+  {
+  "title": "Classroom of the Elite",
+  "author": "Shōgo Kinugasa",
+  "genre": ["Drama", "Slice of Life"],
+  "description": "Students of the prestigious Tokyo Metropolitan Advanced Nurturing High School are given remarkable freedom--if they can win, barter, or save enough points to work their way up the ranks! Ayanokoji Kiyotaka has landed at the bottom in the scorned Class D, where he meets Horikita Suzune, who's determined to rise up the ladder to Class A. Can they beat the system in a school where cutthroat competition is the name of the game?",
+  "publisher": "Seven Seas Entertainment",
+  "type": "light novel",
+  "keywords": ["school", "manipulation", "elite", "psychological"],
+  "price": 14.00,
+  "volumes": [
+    {
+      "volumeNumber": 1,
+      "cover": "images/cote_vol_1.jpg",
+      "page_count": 192,
+      "release_date": "2019-02-07"
+    },
+    {
+      "volumeNumber": 2,
+      "cover": "images/cote_vol_2.jpg",
+      "page_count": 192,
+      "release_date": "2019-06-11"
+    }
+  ]
+},
+
+  {
+  "title": "Moriarty the Patriot",
+  "author": "Ryōsuke Takeuchi",
+  "genre": ["Mystery", "Historical"],
+  "keywords": ["crime", "detective", "justice", "sherlock holmes", "revolution"],
+  "description": "In the late 19th century, Great Britain rules over a quarter of the world. Nobles sit in their fancy homes in comfort and luxury, while the working class slaves away at their jobs. When young Albert James Moriarty's upper-class family adopts two lower-class orphans, the cruelty the boys experience at his family's hands cements Albert's hatred of the nobility he was born into. He asks the older of the two boys—who has a genius mind and a killer instinct—to help him rid the world of evil, starting with Albert's own family!...Rated:T+",
+  "publisher": "Viz Media",
+  "type": "manga",
+  "price": 10.00,
+  "volumes": [
+    {
+      "volumeNumber": 1,
+      "cover": "images/moriarty_vol_1.jpg",
+      "page_count": 208,
+      "release_date": "2020-10-06"
+    },
+    {
+      "volumeNumber": 2,
+      "cover": "images/moriarty_vol_2.jpg",
+      "page_count": 200,
+      "release_date": "2021-01-05"
+    },
+    {
+      "volumeNumber": 3,
+      "cover": "images/moriarty_vol_3.jpg",
+      "page_count": 200,
+      "release_date": "2021-04-06"
+    }
+  ]
+},
+
+
+
+  {
+    "title": "Tokyo Revengers",
+    "author": "Ken Wakui",
+    "genre": ["Action"],
+    "keywords": ["time travel", "gangs", "revenge"],
+    "description": "Takemichi Hanagaki is a 26-year-old freeter who learns that his ex-girlfriend, Hinata Tachibana, has been killed by the Tokyo Manji Gang. After a series of events, he finds himself traveling back in time to his middle school days, where he tries to save her and change the future.",
+    "publisher": "Kodansha",
+    "type": "manga",
+    "price": 30.00,
+    "volumes": [
+      {
+        "volumeNumber": 1,
+        "cover": "images/tr_vol_1.jpg",
+        "page_count": 192,
+        "release_date": "2017-03-01"
+      },
+      {
+        "volumeNumber": 2,
+        "cover": "images/tr_vol_2.jpg",
+        "page_count": 192,
+        "release_date": "2017-06-01"
+      }
+    ]
+  },
+  {
+    "title": "Jujutsu Kaisen",
+    "author": "Gege Akutami",
+    "genre": ["Action"],
+    "keywords": ["curses", "sorcerers", "battles", "bestsellers", "animated series", "award winning title"],
+    "price": 30.00,
+    "description": "Yuuta Okkotsu is a nervous high school student who is afflicted by a powerful curse. To save him, Satoru Gojo, a teacher at Jujutsu High School, takes him under his wing. As Yuuta learns to control his curse, he discovers the dark world of Jujutsu sorcerers and the battles they face against curses.",
+    "publisher": "Shueisha",
+    "type": "manga",
+    "volumes": [
+      {
+        "volumeNumber": 1,
+        "cover": "images/jjk_vol_1.jpg",
+        "page_count": 192,
+        "release_date": "2018-03-05"
+      },
+      {
+        "volumeNumber": 2,
+        "cover": "images/jjk_vol_2.jpg",
+        "page_count": 192,
+        "release_date": "2018-06-04"
+      }
+    ]
+  },
+  {
+    "title": "Attack on Titan",
+    "author": "Hajime Isayama",
+    "genre": ["Action"],
+    "keywords": ["titans", "war", "survival", "award winning title", "animated series"],
+    "description": "In a world where humanity resides within enormous walled cities to protect themselves from Titans, gigantic humanoid creatures, the story follows Eren Yeager and his friends who join the military to fight against the Titans after their city is invaded.",
+    "publisher": "Kodansha",
+    "type": "manga",
+    "price": 50.00,
+    "volumes": [
+      {
+        "volumeNumber": 1,
+        "cover": "images/aot_vol_1.jpg",
+        "page_count": 192,
+        "release_date": "2009-09-09"
+      },
+      {
+        "volumeNumber": 2,
+        "cover": "images/aot_vol_2.jpg",
+        "page_count": 192,
+        "release_date": "2010-01-15"
+      },
+      {
+        "volumeNumber": 3,
+        "cover": "images/aot_vol_3.jpg",
+        "page_count": 192,
+        "release_date": "2010-04-09"
+      }
+    ]
+  },
+  {
+    "title": "Naruto",
+    "author": "Masashi Kishimoto",
+    "genre": ["Action", "Adventure"],
+    "keywords": ["ninja", "friendship"],
+    "description": "Naruto Uzumaki is a young ninja who seeks recognition from his peers and dreams of becoming the Hokage, the leader of his village. He is determined to prove himself and protect those he cares about.",
+    "publisher": "Shueisha",
+    "type": "manga",
+    "price": 30.00,
+    "volumes": [
+      {
+        "volumeNumber": 1,
+        "cover": "images/naruto_vol_1.jpg",
+        "page_count": 192,
+        "release_date": "1999-08-03"
+      },
+      {
+        "volumeNumber": 2,
+        "cover": "images/naruto_vol_2.jpg",
+        "page_count": 192,
+        "release_date": "1999-11-02"
+      }
+    ]
+  },
+  {
+    "title": "Dragon Ball",
+    "author": "Akira Toriyama",
+    "genre": ["Action", "Adventure", "Comedy"],
+    "keywords": ["martial arts"],
+    "description": "Dragon Ball follows the adventures of Son Goku from his childhood through adulthood as he trains in martial arts and explores the world in search of the seven orbs known as Dragon Balls, which summon a wish-granting dragon when gathered.",
+    "publisher": "Shueisha",
+    "type": "manga",
+    "price": 30.00,
+    "volumes": [
+      {
+        "volumeNumber": 1,
+        "cover": "images/db_vol_1.jpg",
+        "page_count": 192,
+        "release_date": "1984-09-20"
+      },
+      {
+        "volumeNumber": 2,
+        "cover": "images/db_vol_2.jpg",
+        "page_count": 192,
+        "release_date": "1985-01-01"
+      }
+    ]
+  },
+  {
+    "title": "Demon Slayer",
+    "author": "Koyoharu Gotouge",
+    "genre": ["Action"],
+    "keywords": ["demons", "swords", "family", "bestsellers", "animated series", "award winning title"],
+    "price": 30.00,
+    "description": "Learning to destroy demons won't be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know what's going on, might provide some answers—but only if Tanjiro can stop Giyu from killing his sister first!...Rated:T",
+    "publisher": "Shueisha",
+    "type": "manga",
+    "volumes": [
+      {
+        "volumeNumber": 1,
+        "cover": "images/ds_vol_1.jpg",
+        "page_count": 192,
+        "release_date": "2016-02-15"
+      },
+      {
+        "volumeNumber": 2,
+        "cover": "images/ds_vol_2.jpg",
+        "page_count": 192,
+        "release_date": "2016-05-02"
+      }
+    ]
+  },
+
+
+  {
+    "title": "The Quintessential Quintuplets",
+    "author": "Negi Haruba",
+    "genre": ["Romance", "Comedy"],
+    "keywords": ["school life", "harem", "siblings", "quintuplets", "love triangle", "animated series", "award winning title", "bestsellers"],
+    "price": 25.00,
+    "description": "Fuutarou Uesugi is a high school student who is hired as a tutor for the Nakano quintuplets, five identical sisters with distinct personalities. As he navigates their unique challenges, he finds himself entangled in their lives and develops feelings for them.",
+    "publisher": "Kodansha",
+    "type": "manga",
+    "volumes": [
+      {
+        "volumeNumber": 1,
+        "cover": "images/tqq_vol_1.jpg",
+        "page_count": 192,
+        "release_date": "2017-08-17"
+      },
+      {
+        "volumeNumber": 2,
+        "cover": "images/tqq_vol_2.jpg",
+        "page_count": 192,
+        "release_date": "2017-11-17"
+      },
+      {
+        "volumeNumber": 3,
+        "cover": "images/tqq_vol_3.jpg",
+        "page_count": 192,
+        "release_date": "2018-02-16"
+      }
+    ]
+  },
+  {
+    "title": "Kaguya-sama: Love Is War",
+    "author": "Aka Akasaka",
+    "genre": ["Romance", "Comedy"],
+    "keywords": ["romantic comedy", "mind games", "bestsellers", "award winning title"],
+    "description": "At the renowned Shuchiin Academy, student council president Miyuki Shirogane and vice president Kaguya Shinomiya are the perfect couple. But they refuse to confess their love for each other! Instead, they engage in a battle of wits to make the other confess first. Who will win this war of love?",
+    "publisher": "Shueisha",
+    "type": "manga",
+    "price": 30.00,
+    "volumes": [
+      {
+        "volumeNumber": 1,
+        "cover": "images/kaguya_vol_1.jpg",
+        "page_count": 192,
+        "release_date": "2015-05-19"
+      },
+      {
+        "volumeNumber": 2,
+        "cover": "images/kaguya_vol_2.jpg",
+        "page_count": 192,
+        "release_date": "2015-08-18"
+      }
+    ]
+  },
+  {
+    "title": "Horimiya",
+    "author": "Hero",
+    "genre": ["Romance", "Slice of Life"],
+    "keywords": ["high school"],
+    "description": "A sweet \"aww\"-inspiring tale of school life begins!! At school, Kyouko Hori is known for being smart, attractive, and popular. On the other hand, her classmate, the boring, gloomy Izumi Miyamura tends to get painted as a \"loser fanboy.\" But when a liberally pierced and tattooed (not to mention downright gorgeous) Miyamura appears unexpectedly on the doorstep of secretly plain-Jane homebody Hori, these two similarly dissimilar teenagers discover that there are multiple sides to every story...and person!",
+    "publisher": "Yen Press",
+    "type": "manga",
+    "price": 30.00,
+    "volumes": [
+      {
+        "volumeNumber": 1,
+        "cover": "images/horimiya_vol_1.jpg",
+        "page_count": 192,
+        "release_date": "2011-10-18"
+      },
+      {
+        "volumeNumber": 2,
+        "cover": "images/horimiya_vol_2.jpg",
+        "page_count": 192,
+        "release_date": "2012-01-17"
+      }
+    ]
+  },
+  {
+    "title": "Your Lie in April",
+    "author": "Naoshi Arakawa",
+    "genre": ["Romance", "Drama"],
+    "keywords": ["music", "love"],
+    "description": "Kōsei Arima was a piano prodigy until the death of his mother, which left him unable to hear the sound of his own playing. He meets Kaori Miyazono, a spirited violinist who helps him rediscover his love for music.",
+    "publisher": "Kodansha",
+    "type": "manga",
+    "price": 50.00,
+    "volumes": [
+      {
+        "volumeNumber": 1,
+        "cover": "images/ylia_vol_1.jpg",
+        "page_count": 192,
+        "release_date": "2011-04-06"
+      },
+      {
+        "volumeNumber": 2,
+        "cover": "images/ylia_vol_2.jpg",
+        "page_count": 192,
+        "release_date": "2011-07-06"
+      }
+    ]
+  },
+  {
+    "title": "The Dangers in My Heart",
+    "author": "Norio Sakurai",
+    "genre": ["Romance", "Comedy", "Slice of Life"],
+    "price": 28.00,
+    "description": "Ichikawa Kyotaro, a boy barely clinging to the bottom rung of his school's social ladder, secretly believes he's the tortured lead in some psychological thriller. He spends his days dreaming up ways to disrupt his classmates' peaceful lives and pining after Yamada Anna, the class idol. But Ichikawa's not nearly the troubled teen he pretends to be...and it turns out Yamada's a bit odd herself!",
+    "publisher": "Kodansha",
+    "type": "manga",
+    "keywords": ["school life",  "psychological"],
+    "volumes": [
+      {
+        "volumeNumber": 1,
+        "cover": "images/dimh_vol_1.jpg",
+        "page_count": 192,
+        "release_date": "2018-04-04"
+      }
+    ]
+  },
+  {
+    "title": "Blue Box",
+    "author": "Kouji Miura",
+    "genre": ["Romance"],
+    "keywords": ["basketball", "romance", "shounen", "school life", "animated series", "bestsellers"],
+    "description": "Taiki Inomata, a third-year student in junior high, attends Eimei Academy, an integrated school with a major sports program. Having joined the high school badminton team, Taiki tries to attend open practice as early as possible. But no matter how early he goes, he always arrives second in the gymnasium. The person one step ahead of him is Chinatsu Kano, a first-year student in senior high and Taiki's crush.",
+    "publisher": "Shueisha",
+    "type": "manga",
+    "price": 13.00,
+    "volumes": [
+      {
+        "volumeNumber": 1,
+        "cover": "images/bb_vol_1.jpg",
+        "page_count": 192,
+        "release_date": "2021-04-05"
+      },
+      {
+        "volumeNumber": 2,
+        "cover": "images/bb_vol_2.jpg",
+        "page_count": 192,
+        "release_date": "2021-07-05"
+      },
+      {
+        "volumeNumber": 3,
+        "cover": "images/bb_vol_3.jpg",
+        "page_count": 192,
+        "release_date": "2021-10-04"
+      }
+    ]
+  },
+  
+
+  {
+    "title": "Re:Zero - Starting Life in Another World",
+    "author": "Tappei Nagatsuki",
+    "genre": ["Isekai", "Fantasy", "Drama"],
+    "keywords": ["psychological", "action", "animated series"],
+    "price": 15.00,
+    "description": "Subaru Natsuki is a NEET who finds himself in another world. He discovers he has the ability to return from death, but at a cost. As he navigates this new world, he faces challenges and uncovers dark secrets.",
+    "publisher": "KADOKAWA",
+    "type": "light novel",
+    "volumes": [
+      {
+        "volumeNumber": 1,
+        "cover": "images/rezero_vol_1.jpg",
+        "page_count": 192,
+        "release_date": "2014-01-20"
+      },
+      {
+        "volumeNumber": 2,
+        "cover": "images/rezero_vol_2.jpg",
+        "page_count": 192,
+        "release_date": "2014-04-21"
+      },
+      {
+        "volumeNumber": 3,
+        "cover": "images/rezero_vol_3.jpg",
+        "page_count": 192,
+        "release_date": "2014-07-21"
+      }
+    ]
+  }
+  
+
+
+  
+]
