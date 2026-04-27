@@ -8,12 +8,15 @@ function bookrunner_db_connect() {
     $pass = getenv('DB_PASSWORD') ?: '';
 
     $conn = mysqli_init();
-    mysqli_real_connect($conn, $host, $user, $pass, $name, $port);
+    $connected = mysqli_real_connect($conn, $host, $user, $pass, $name, $port);
 
-    if (!mysqli_ping($conn)) {
+    if (!$connected) {
         header('Content-Type: application/json');
         http_response_code(500);
-        echo json_encode(['error' => 'Database connection failed']);
+        echo json_encode([
+            'error' => 'Database connection failed',
+            'details' => mysqli_connect_error()
+        ]);
         exit;
     }
 
