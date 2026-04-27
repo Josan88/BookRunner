@@ -1,0 +1,51 @@
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-bookrunner}
+      MYSQL_USER: ${MYSQL_USER:-bookrunner}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-bookrunner}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./bookrunner.sql:/docker-entrypoint-initdb.d/01-bookrunner.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${MYSQL_ROOT_PASSWORD:-root}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${MYSQL_DATABASE:-bookrunner}
+      DB_USER: ${MYSQL_USER:-bookrunner}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-bookrunner}
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8081:80"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ./:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  db_data:

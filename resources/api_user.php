@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/db.php';
 
 // get the HTTP method, path and body of the request
 $method = $_SERVER['REQUEST_METHOD'];
@@ -7,8 +8,7 @@ $request = explode('/', trim($path_info,'/'));
 $input = json_decode(file_get_contents('php://input'),true);  // json string to associative array(true)
 
 // connect to the mysql database, provide the appropriate credentials
-$conn = mysqli_connect('localhost', 'root', '', 'bookrunner');
-mysqli_set_charset($conn,'utf8');
+$conn = bookrunner_db_connect();
 
 // initialise the table name accordingly
 $table = "users";

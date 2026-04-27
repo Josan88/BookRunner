@@ -1,63 +1,43 @@
-# Setting Up the BookRunner Database and Website Using XAMPP
+# BookRunner Local Development (Docker)
 
 ## Requirements
 
-- XAMPP Control Panel installed on your machine  
-- Apache and MySQL modules running in the XAMPP Control Panel  
-- A web browser, preferably Google Chrome  
+- Docker Desktop (or Docker Engine + Docker Compose)
 
----
+## Start the full local stack
 
-## Step 1: Unzip the BookRunner Folder
+1. (Optional) Copy environment variables to override defaults:
 
-- Unzip the downloaded **BookRunner** folder to a location of your choice.
+   ```bash
+   cp .env.example .env
+   ```
 
----
+2. Start frontend + backend + MySQL:
 
-## Step 2: Start Apache and MySQL in XAMPP
+   ```bash
+   docker compose up --build
+   ```
 
-1. Open the **XAMPP Control Panel**
-2. Click **Start** next to both **Apache** and **MySQL**
+This is the single command that starts the local stack.
 
----
+## Local URLs
 
-## Step 3: Open phpMyAdmin
+- Frontend: `http://localhost:8080`
+- Backend (direct): `http://localhost:8081`
+- MySQL: `localhost:3306` (inside Docker network as `db:3306`)
 
-1. Open your web browser  
-2. Navigate to: [`http://localhost/phpmyadmin`](http://localhost/phpmyadmin)
+The frontend uses `/resources/*.php` and is proxied to the backend container, so it works locally without XAMPP.
 
----
+## Stop and clean up
 
-## Step 4: Import the SQL Code
+- Stop services:
 
-1. Click on the **bookrunner** database (create one if it doesn’t exist)  
-2. Go to the **Import** tab  
-3. Click **Choose File** and select the `bookrunner.sql` file  
-4. Click **Import**
+  ```bash
+  docker compose down
+  ```
 
-✅ You now have a `bookrunner` database with four tables:  
-- `users`  
-- `cart`  
-- `orders`  
-- `order_items`
+- Stop and remove DB volume too:
 
----
-
-## Hosting the BookRunner Website Using XAMPP
-
-### Step 1: Navigate to the `htdocs` Folder
-
-- **Windows:** `C:\xampp\htdocs`  
-- **macOS:** `/Applications/XAMPP/htdocs`
-
-### Step 2: Place the Unzipped Folder
-
-- Move the unzipped **BookRunner** folder into the `htdocs` directory
-
-### Step 3: Access the Website
-
-1. Ensure **Apache** and **MySQL** are running in the XAMPP Control Panel  
-2. Open your browser and navigate to:  
-   [`http://localhost/BookRunner/Project`](http://localhost/BookRunner/Project)
-
----
+  ```bash
+  docker compose down -v
+  ```

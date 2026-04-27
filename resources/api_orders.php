@@ -1,10 +1,10 @@
 <?php
+require_once __DIR__ . '/db.php';
 header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
 $input = json_decode(file_get_contents('php://input'), true);
 
-$conn = mysqli_connect('localhost', 'root', '', 'bookrunner');
-mysqli_set_charset($conn, 'utf8');
+$conn = bookrunner_db_connect();
 
 if ($method === 'POST') {
     if (!isset($input['user_id']) || !isset($input['items']) || !is_array($input['items'])) {
