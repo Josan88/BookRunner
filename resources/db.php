@@ -18,6 +18,8 @@ function bookrunner_db_connect() {
         exit;
     }
 
-    mysqli_set_charset($conn, 'utf8mb4');
+    if (!mysqli_set_charset($conn, 'utf8mb4')) {
+        error_log('Failed to set MySQL charset to utf8mb4: ' . mysqli_error($conn));
+    }
     return $conn;
 }
