@@ -61,3 +61,46 @@
    [`http://localhost/BookRunner/Project`](http://localhost/BookRunner/Project)
 
 ---
+
+## Running the Node.js + Express Backend
+
+### Requirements
+
+- [Node.js](https://nodejs.org/) v18 or later
+- npm (bundled with Node.js)
+
+### Step 1: Install dependencies
+
+```bash
+cd backend
+npm install
+```
+
+### Step 2: Configure environment variables
+
+```bash
+cp .env.example .env
+# Edit .env as needed (PORT, HOST, NODE_ENV)
+```
+
+### Step 3: Start the server
+
+```bash
+npm start
+```
+
+The API will be available at `http://localhost:3000` by default.
+
+### Health check
+
+```
+GET /health
+```
+
+Returns HTTP 200 with JSON:
+
+```json
+{ "status": "ok" }
+```
+
+---
