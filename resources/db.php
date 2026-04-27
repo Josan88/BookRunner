@@ -20,6 +20,11 @@ function bookrunner_db_connect() {
 
     if (!mysqli_set_charset($conn, 'utf8mb4')) {
         error_log('Failed to set MySQL charset to utf8mb4: ' . mysqli_error($conn));
+        header('Content-Type: application/json');
+        http_response_code(500);
+        echo json_encode(['error' => 'Database charset configuration failed']);
+        mysqli_close($conn);
+        exit;
     }
     return $conn;
 }
