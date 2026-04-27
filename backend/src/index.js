@@ -5,7 +5,8 @@ require('dotenv').config();
 const express = require('express');
 
 const app = express();
-const parsedPort = Number.parseInt(process.env.PORT ?? '', 10);
+const portFromEnv = process.env.PORT;
+const parsedPort = portFromEnv === undefined ? 3000 : Number.parseInt(portFromEnv, 10);
 const PORT = Number.isNaN(parsedPort) ? 3000 : parsedPort;
 const HOST = process.env.HOST || '0.0.0.0';
 
