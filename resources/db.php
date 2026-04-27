@@ -13,13 +13,11 @@ function bookrunner_db_connect() {
     if (!$connected) {
         header('Content-Type: application/json');
         http_response_code(500);
-        echo json_encode([
-            'error' => 'Database connection failed',
-            'details' => mysqli_connect_error()
-        ]);
+        error_log('Database connection failed: ' . mysqli_connect_error());
+        echo json_encode(['error' => 'Database connection failed']);
         exit;
     }
 
-    mysqli_set_charset($conn, 'utf8');
+    mysqli_set_charset($conn, 'utf8mb4');
     return $conn;
 }
