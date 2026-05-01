@@ -1,64 +1,79 @@
-# Setting Up the BookRunner Database and Website Using XAMPP
+# BookRunner Local Development (Docker)
 
 ## Requirements
 
-- XAMPP Control Panel installed on your machine  
-- Apache and MySQL modules running in the XAMPP Control Panel  
-- A web browser, preferably Google Chrome  
+- Docker Desktop (or Docker Engine + Docker Compose)
 
----
+## Start the full local stack
 
-## Step 1: Unzip the BookRunner Folder
+1. (Optional) Copy environment variables to override defaults:
 
-- Unzip the downloaded **BookRunner** folder to a location of your choice.
+   ```bash
+   cp .env.example .env
+   ```
 
----
+2. Start frontend + Express backend + MySQL:
 
-## Step 2: Start Apache and MySQL in XAMPP
+   ```bash
+   docker compose up --build
+   ```
 
-1. Open the **XAMPP Control Panel**
-2. Click **Start** next to both **Apache** and **MySQL**
+This is the single command that starts the local stack.
 
----
+## Local URLs
 
-## Step 3: Open phpMyAdmin
+All published ports are loopback-only (`127.0.0.1`) for local development.
 
-1. Open your web browser  
-2. Navigate to: [`http://localhost/phpmyadmin`](http://localhost/phpmyadmin)
+- Frontend: `http://localhost:8080`
+- Backend (Express): `http://localhost:3000`
+- Backend health: `http://localhost:3000/health`
+- Backend health (via frontend proxy): `http://localhost:8080/health`
+- MySQL: `localhost:3306` (inside Docker network as `db:3306`)
 
----
+The frontend is served by nginx and API requests are proxied to the Express backend.
 
-## Step 4: Import the SQL Code
+## Current scope (infrastructure only)
 
-1. Click on the **bookrunner** database (create one if it doesn’t exist)  
-2. Go to the **Import** tab  
-3. Click **Choose File** and select the `bookrunner.sql` file  
-4. Click **Import**
+This Docker stack currently validates infrastructure wiring only:
 
-✅ You now have a `bookrunner` database with four tables:  
-- `users`  
-- `cart`  
-- `orders`  
-- `order_items`
+- Frontend container builds and serves static assets
+- Express backend boots and responds on `/health`
+- MySQL service starts and is reachable on `localhost:3306`
 
----
+Legacy auth/cart/orders API flows are not migrated in this stack yet and are tracked in:
 
-## Hosting the BookRunner Website Using XAMPP
+- #5 (auth)
+- #6 (cart)
+- #7 (orders)
 
-### Step 1: Navigate to the `htdocs` Folder
+## Local verification notes
 
-- **Windows:** `C:\xampp\htdocs`  
-- **macOS:** `/Applications/XAMPP/htdocs`
+Verified locally with:
 
-### Step 2: Place the Unzipped Folder
+```bash
+docker compose up --build
+```
 
-- Move the unzipped **BookRunner** folder into the `htdocs` directory
+Then checked:
 
-### Step 3: Access the Website
+- Frontend load: `http://localhost:8080`
+- Backend health: `http://localhost:3000/health`
+- Proxied health: `http://localhost:8080/health`
+- MySQL startup: service healthy and reachable on `localhost:3306`
 
-1. Ensure **Apache** and **MySQL** are running in the XAMPP Control Panel  
-2. Open your browser and navigate to:  
-   [`http://localhost/BookRunner/Project`](http://localhost/BookRunner/Project)
+## Stop and clean up
+
+- Stop services:
+
+  ```bash
+  docker compose down
+  ```
+
+- Stop and remove DB volume too:
+
+  ```bash
+  docker compose down -v
+  ```
 
 ---
 
