@@ -22,6 +22,8 @@ This is the single command that starts the local stack.
 
 ## Local URLs
 
+All published ports are loopback-only (`127.0.0.1`) for local development.
+
 - Frontend: `http://localhost:8080`
 - Backend (Express): `http://localhost:3000`
 - Backend health: `http://localhost:3000/health`

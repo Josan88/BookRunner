@@ -11,12 +11,12 @@ services:
       - db_data:/var/lib/mysql
       - ./bookrunner.sql:/docker-entrypoint-initdb.d/01-bookrunner.sql:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$${MYSQL_ROOT_PASSWORD}\" --silent"]
       interval: 5s
       timeout: 5s
       retries: 20
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
 
   backend:
     build:
@@ -36,7 +36,7 @@ services:
       timeout: 5s
       retries: 20
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
 
   frontend:
     build:
@@ -47,7 +47,7 @@ services:
       backend:
         condition: service_healthy
     ports:
-      - "8080:80"
+      - "127.0.0.1:8080:80"
 
 volumes:
   db_data:
