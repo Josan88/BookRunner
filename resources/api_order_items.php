@@ -1,11 +1,11 @@
 <?php
-require_once __DIR__ . '/db.php';
 
 header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
 $input = json_decode(file_get_contents('php://input'), true);
 
-$conn = bookrunner_db_connect();
+$conn = mysqli_connect('localhost', 'root', '', 'bookrunner');
+mysqli_set_charset($conn, 'utf8');
 
 if ($method === 'DELETE') {
     // Expecting ?id=ORDER_ITEM_ID&order_id=ORDER_ID

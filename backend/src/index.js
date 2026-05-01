@@ -5,13 +5,25 @@ require('dotenv').config();
 const express = require('express');
 
 const app = express();
+const DEFAULT_PORT = 3000;
+const MAX_PORT = 65535;
+
 const resolvePort = (rawPort) => {
-  if (rawPort === undefined || rawPort.trim() === '') {
-    return 3000;
+  if (rawPort === undefined) {
+    return DEFAULT_PORT;
   }
 
-  const parsedPort = Number.parseInt(rawPort, 10);
-  return Number.isNaN(parsedPort) ? 3000 : parsedPort;
+  const normalizedPort = rawPort.trim();
+  if (normalizedPort === '' || !/^\d+$/.test(normalizedPort)) {
+    return DEFAULT_PORT;
+  }
+
+  const parsedPort = Number(normalizedPort);
+  if (!Number.isInteger(parsedPort) || parsedPort < 0 || parsedPort > MAX_PORT) {
+    return DEFAULT_PORT;
+  }
+
+  return parsedPort;
 };
 
 const PORT = resolvePort(process.env.PORT);
