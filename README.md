@@ -103,4 +103,19 @@ Returns HTTP 200 with JSON:
 { "status": "ok" }
 ```
 
+### Run smoke test
+
+```bash
+npm test
+```
+
+### Verification notes
+
+Verified locally with:
+
+- `npm install`
+- `npm start` (server booted successfully)
+- `GET /health` returned `200 {"status":"ok"}`
+- `npm test` passed for `GET /health`
+
 ---
