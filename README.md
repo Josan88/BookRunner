@@ -12,7 +12,7 @@
    cp .env.example .env
    ```
 
-2. Start frontend + backend + MySQL:
+2. Start frontend + Express backend + MySQL:
 
    ```bash
    docker compose up --build
@@ -23,10 +23,11 @@ This is the single command that starts the local stack.
 ## Local URLs
 
 - Frontend: `http://localhost:8080`
-- Backend (direct): `http://localhost:8081`
+- Backend (Express): `http://localhost:3000`
+- Backend health: `http://localhost:3000/health`
 - MySQL: `localhost:3306` (inside Docker network as `db:3306`)
 
-The frontend uses `/resources/*.php` and is proxied to the backend container, so it works locally without XAMPP.
+The frontend is served by nginx and API requests are proxied to the Express backend.
 
 ## Stop and clean up
 

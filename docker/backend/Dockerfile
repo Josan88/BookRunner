@@ -1,5 +1,12 @@
-FROM php:8.3-apache
+FROM node:20-alpine
 
-RUN docker-php-ext-install mysqli
+WORKDIR /app
 
-WORKDIR /var/www/html
+COPY backend/package*.json ./
+RUN npm ci --omit=dev
+
+COPY backend/src ./src
+
+EXPOSE 3000
+
+CMD ["npm", "start"]

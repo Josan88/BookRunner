@@ -15,6 +15,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+    ports:
+      - "3306:3306"
 
   backend:
     build:
@@ -22,28 +24,28 @@ services:
       dockerfile: docker/backend/Dockerfile
     restart: unless-stopped
     environment:
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_NAME: ${MYSQL_DATABASE:-bookrunner}
-      DB_USER: ${MYSQL_USER:-bookrunner}
-      DB_PASSWORD: ${MYSQL_PASSWORD:-bookrunner}
-    volumes:
-      - ./:/var/www/html
+      NODE_ENV: ${NODE_ENV:-development}
+      HOST: 0.0.0.0
+      PORT: 3000
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
     ports:
-      - "8081:80"
+      - "3000:3000"
 
   frontend:
     build:
       context: .
       dockerfile: docker/frontend/Dockerfile
     restart: unless-stopped
-    volumes:
-      - ./:/usr/share/nginx/html:ro
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     ports:
       - "8080:80"
 
