@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-bookrunner}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bookrunner}
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
       - ./bookrunner.sql:/docker-entrypoint-initdb.d/01-bookrunner.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-bookrunner} -d ${POSTGRES_DB:-bookrunner}"]
@@ -50,4 +50,4 @@ services:
       - "127.0.0.1:8080:80"
 
 volumes:
-  db_data:
+  postgres_data:

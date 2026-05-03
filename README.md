@@ -38,7 +38,7 @@ This Docker stack establishes the PostgreSQL database foundation:
 
 - Frontend container builds and serves static assets
 - Express backend boots and responds on `/health`
-- PostgreSQL service starts, becomes healthy, and runs `bookrunner.sql` to initialize the schema
+- PostgreSQL service starts, becomes healthy, and runs `bookrunner.sql` when the data volume is first initialized
 - Backend receives `DATABASE_URL` for future PostgreSQL-backed API work
 
 **Backend data access (auth, cart, orders) is not yet implemented** and is tracked in:
@@ -66,6 +66,8 @@ Expected results:
 - Backend health is accessible at `http://localhost:3000/health` and via proxy at `http://localhost:8080/health`
 
 > **Note:** PostgreSQL starts and initializes the schema, but backend API routes for auth/cart/orders are not yet connected. Those are implemented in #5, #6, and #7.
+
+> **Schema reset:** PostgreSQL init scripts only run when the data volume is empty. If `bookrunner.sql` changes, run `docker compose down -v` before starting the stack again to force a fresh schema initialization.
 
 ## Stop and clean up
 

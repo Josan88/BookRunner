@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS orders (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     total_amount NUMERIC(10, 2) NOT NULL CHECK (total_amount >= 0),
-    status VARCHAR(40) NOT NULL DEFAULT 'completed',
+    status VARCHAR(40) NOT NULL DEFAULT 'completed' CHECK (status IN ('pending', 'completed', 'cancelled')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -36,5 +36,5 @@ CREATE TABLE IF NOT EXISTS order_items (
     title VARCHAR(255) NOT NULL,
     unit_price NUMERIC(10, 2) NOT NULL CHECK (unit_price >= 0),
     quantity INTEGER NOT NULL CHECK (quantity > 0),
-    line_total NUMERIC(10, 2) NOT NULL CHECK (line_total >= 0)
+    line_total NUMERIC(10, 2) NOT NULL CHECK (line_total = unit_price * quantity)
 );
