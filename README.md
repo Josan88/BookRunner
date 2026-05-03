@@ -12,7 +12,7 @@
    cp .env.example .env
    ```
 
-2. Start frontend + Express backend + MySQL:
+2. Start frontend + Express backend + PostgreSQL:
 
    ```bash
    docker compose up --build
@@ -28,7 +28,7 @@ All published ports are loopback-only (`127.0.0.1`) for local development.
 - Backend (Express): `http://localhost:3000`
 - Backend health: `http://localhost:3000/health`
 - Backend health (via frontend proxy): `http://localhost:8080/health`
-- MySQL: `localhost:3306` (inside Docker network as `db:3306`)
+- PostgreSQL: `localhost:5432` (inside Docker network as `db:5432`)
 
 The frontend is served by nginx and API requests are proxied to the Express backend.
 
@@ -38,7 +38,7 @@ This Docker stack currently validates infrastructure wiring only:
 
 - Frontend container builds and serves static assets
 - Express backend boots and responds on `/health`
-- MySQL service starts and is reachable on `localhost:3306`
+- PostgreSQL service starts and is reachable on `localhost:5432`
 
 Legacy auth/cart/orders API flows are not migrated in this stack yet and are tracked in:
 
@@ -59,7 +59,7 @@ Then checked:
 - Frontend load: `http://localhost:8080`
 - Backend health: `http://localhost:3000/health`
 - Proxied health: `http://localhost:8080/health`
-- MySQL startup: service healthy and reachable on `localhost:3306`
+- PostgreSQL startup: service healthy and reachable on `localhost:5432`
 
 ## Stop and clean up
 
@@ -95,7 +95,7 @@ npm install
 
 ```bash
 cp .env.example .env
-# Edit .env as needed (PORT, HOST, NODE_ENV)
+# Edit .env as needed (PORT, HOST, NODE_ENV, DATABASE_URL)
 ```
 
 ### Step 3: Start the server

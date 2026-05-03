@@ -1,49 +1,38 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
-CREATE DATABASE IF NOT EXISTS bookrunner DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE bookrunner;
+CREATE TABLE IF NOT EXISTS users (
+    id        SERIAL PRIMARY KEY,
+    username  VARCHAR(50)  NOT NULL,
+    email     VARCHAR(100) NOT NULL,
+    password  VARCHAR(255) NOT NULL,
+    age       INTEGER      NOT NULL,
+    gender    VARCHAR(10)  NOT NULL CHECK (gender IN ('Male', 'Female', 'Other')),
+    reg_date  TIMESTAMPTZ  DEFAULT NOW()
+);
 
-CREATE TABLE IF NOT EXISTS `users` (
-    id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    age INT NOT NULL,
-    gender ENUM('Male', 'Female', 'Other') NOT NULL,
-    reg_date TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-CREATE TABLE IF NOT EXISTS cart (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    user_id INT(6) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS cart_items (
+    id         SERIAL PRIMARY KEY,
+    user_id    INTEGER      NOT NULL REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
     book_title VARCHAR(255) NOT NULL,
-    cover VARCHAR(255) NOT NULL,
-    volume VARCHAR(50) NOT NULL,
-    quantity INT NOT NULL DEFAULT 1,
-    price DECIMAL(10,2) NOT NULL,
-    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+    cover      VARCHAR(255) NOT NULL,
+    volume     VARCHAR(50)  NOT NULL,
+    quantity   INTEGER      NOT NULL DEFAULT 1,
+    price      NUMERIC(10,2) NOT NULL,
+    added_at   TIMESTAMPTZ  DEFAULT NOW()
+);
 
 CREATE TABLE IF NOT EXISTS orders (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    user_id INT UNSIGNED NOT NULL,
-    purchase_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+    id            SERIAL PRIMARY KEY,
+    user_id       INTEGER     NOT NULL REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    purchase_date TIMESTAMPTZ DEFAULT NOW()
+);
 
 CREATE TABLE IF NOT EXISTS order_items (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    order_id INT UNSIGNED NOT NULL,
+    id         SERIAL PRIMARY KEY,
+    order_id   INTEGER      NOT NULL REFERENCES orders(id) ON DELETE CASCADE ON UPDATE CASCADE,
     book_title VARCHAR(255) NOT NULL,
-    volume VARCHAR(50) NOT NULL,
-    quantity INT NOT NULL DEFAULT 1,
-    price DECIMAL(10,2) NOT NULL,
-    cover VARCHAR(255) NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES orders(id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+    volume     VARCHAR(50)  NOT NULL,
+    quantity   INTEGER      NOT NULL DEFAULT 1,
+    price      NUMERIC(10,2) NOT NULL,
+    cover      VARCHAR(255) NOT NULL
+);
