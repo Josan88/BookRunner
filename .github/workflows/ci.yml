@@ -1,5 +1,9 @@
 name: CI
 
+# Frontend Selenium/integration tests are not yet included because no Selenium
+# test infrastructure exists in this repository. They are tracked in issue #10
+# and will be added in a dedicated CI job once that work is complete.
+
 on:
   push:
     branches: ["**"]
@@ -46,8 +50,8 @@ jobs:
           file: docker/backend/Dockerfile
           push: false
           tags: bookrunner-backend:ci
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,scope=backend,mode=max
 
   build-frontend:
     name: Build frontend Docker image
@@ -66,5 +70,5 @@ jobs:
           file: docker/frontend/Dockerfile
           push: false
           tags: bookrunner-frontend:ci
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,scope=frontend,mode=max

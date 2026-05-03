@@ -91,20 +91,22 @@ Two workflow files drive the automation pipeline:
 
 ### CI (`ci.yml`)
 
-Triggered on every push and pull request to any branch. Runs three jobs in sequence:
+Triggered on every push and pull request to any branch. The `test` job runs first; `build-backend` and `build-frontend` both depend on `test` and then run in parallel:
 
 1. **Backend tests** – installs Node.js 20, runs `npm ci` and `npm test` inside `backend/`
 2. **Build backend Docker image** – builds `docker/backend/Dockerfile` (no push)
 3. **Build frontend Docker image** – builds `docker/frontend/Dockerfile` (no push)
 
+> **Frontend/Selenium checks:** No Selenium test infrastructure exists in this repository yet. Frontend integration tests are deferred to issue #10 and will be added to CI once that work is complete.
+
 ### CD (`cd.yml`)
 
-Triggered on push to `main` and on version tags (`v*`). Runs:
+Triggered on push to `main` and on version tags (`v*`). Concurrent runs on the same ref are cancelled automatically (`cancel-in-progress: true`).
 
 1. **Backend tests** – same as CI
-2. **Build & push images to ACR** – logs in to Azure Container Registry and pushes both images tagged with the commit SHA or tag name
+2. **Build & push images to ACR** – logs in to Azure Container Registry and pushes both images. Branch builds are tagged `main-<8-char SHA>`; tag builds use the tag name (e.g. `v1.2.3`).
 3. **Deploy to staging** – deploys to Azure Container Apps when the commit lands on `main`
-4. **Deploy to production** – deploys to Azure Container Apps when a `v*` tag is pushed
+4. **Deploy to production** – deploys to Azure Container Apps when a `v*` tag is pushed **and** the tagged commit is reachable from `main` (prevents shipping code that bypassed staging)
 
 ### Required GitHub Secrets
 
