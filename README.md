@@ -85,6 +85,45 @@ Expected results:
 
 ---
 
+## GitHub Actions CI/CD
+
+Two workflow files drive the automation pipeline:
+
+### CI (`ci.yml`)
+
+Triggered on every push and pull request to any branch. Runs three jobs in sequence:
+
+1. **Backend tests** – installs Node.js 20, runs `npm ci` and `npm test` inside `backend/`
+2. **Build backend Docker image** – builds `docker/backend/Dockerfile` (no push)
+3. **Build frontend Docker image** – builds `docker/frontend/Dockerfile` (no push)
+
+### CD (`cd.yml`)
+
+Triggered on push to `main` and on version tags (`v*`). Runs:
+
+1. **Backend tests** – same as CI
+2. **Build & push images to ACR** – logs in to Azure Container Registry and pushes both images tagged with the commit SHA or tag name
+3. **Deploy to staging** – deploys to Azure Container Apps when the commit lands on `main`
+4. **Deploy to production** – deploys to Azure Container Apps when a `v*` tag is pushed
+
+### Required GitHub Secrets
+
+Configure these in **Settings → Secrets and variables → Actions** before the CD workflow can run:
+
+| Secret | Description |
+|--------|-------------|
+| `ACR_LOGIN_SERVER` | ACR login server, e.g. `myregistry.azurecr.io` |
+| `ACR_USERNAME` | ACR admin username (or service-principal client ID) |
+| `ACR_PASSWORD` | ACR admin password (or service-principal client secret) |
+| `AZURE_CREDENTIALS` | JSON service-principal credentials. Create with:<br>`az ad sp create-for-rbac --name bookrunner-cicd --role contributor --scopes /subscriptions/<SUB_ID>/resourceGroups/<RG> --json-auth` |
+| `ACA_RESOURCE_GROUP` | Azure resource group containing the Container Apps |
+| `ACA_STAGING_BACKEND_APP` | Container App name for staging backend |
+| `ACA_STAGING_FRONTEND_APP` | Container App name for staging frontend |
+| `ACA_PRODUCTION_BACKEND_APP` | Container App name for production backend |
+| `ACA_PRODUCTION_FRONTEND_APP` | Container App name for production frontend |
+
+---
+
 ## Running the Node.js + Express Backend
 
 ### Requirements
