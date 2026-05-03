@@ -1,38 +1,41 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE TABLE IF NOT EXISTS users (
-    id        SERIAL PRIMARY KEY,
-    username  VARCHAR(50)  NOT NULL,
-    email     VARCHAR(100) NOT NULL,
-    password  VARCHAR(255) NOT NULL,
-    age       INTEGER      NOT NULL,
-    gender    VARCHAR(10)  NOT NULL CHECK (gender IN ('Male', 'Female', 'Other')),
-    reg_date  TIMESTAMPTZ  DEFAULT NOW()
+    id            UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+    name          VARCHAR(120) NOT NULL,
+    email         VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    updated_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS cart_items (
-    id         SERIAL PRIMARY KEY,
-    user_id    INTEGER      NOT NULL REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    book_title VARCHAR(255) NOT NULL,
-    cover      VARCHAR(255) NOT NULL,
-    volume     VARCHAR(50)  NOT NULL,
-    quantity   INTEGER      NOT NULL DEFAULT 1,
-    price      NUMERIC(10,2) NOT NULL,
-    added_at   TIMESTAMPTZ  DEFAULT NOW()
+    id         UUID          PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id    UUID          NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    book_id    UUID          NOT NULL,
+    title      VARCHAR(255)  NOT NULL,
+    unit_price NUMERIC(10,2) NOT NULL,
+    quantity   INTEGER       NOT NULL DEFAULT 1,
+    added_at   TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+    UNIQUE (user_id, book_id)
 );
 
 CREATE TABLE IF NOT EXISTS orders (
-    id            SERIAL PRIMARY KEY,
-    user_id       INTEGER     NOT NULL REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    purchase_date TIMESTAMPTZ DEFAULT NOW()
+    id           UUID          PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id      UUID          NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status       VARCHAR(50)   NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'completed', 'cancelled')),
+    total_amount NUMERIC(10,2) NOT NULL,
+    created_at   TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+    updated_at   TIMESTAMPTZ   NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS order_items (
-    id         SERIAL PRIMARY KEY,
-    order_id   INTEGER      NOT NULL REFERENCES orders(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    book_title VARCHAR(255) NOT NULL,
-    volume     VARCHAR(50)  NOT NULL,
-    quantity   INTEGER      NOT NULL DEFAULT 1,
-    price      NUMERIC(10,2) NOT NULL,
-    cover      VARCHAR(255) NOT NULL
+    id         UUID          PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_id   UUID          NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    book_id    UUID          NOT NULL,
+    title      VARCHAR(255)  NOT NULL,
+    unit_price NUMERIC(10,2) NOT NULL,
+    quantity   INTEGER       NOT NULL DEFAULT 1,
+    line_total NUMERIC(10,2) NOT NULL CHECK (line_total = unit_price * quantity)
 );
