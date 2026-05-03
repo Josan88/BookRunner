@@ -12,7 +12,7 @@
    cp .env.example .env
    ```
 
-2. Start frontend + Express backend + MySQL:
+2. Start frontend + Express backend + PostgreSQL:
 
    ```bash
    docker compose up --build
@@ -28,38 +28,46 @@ All published ports are loopback-only (`127.0.0.1`) for local development.
 - Backend (Express): `http://localhost:3000`
 - Backend health: `http://localhost:3000/health`
 - Backend health (via frontend proxy): `http://localhost:8080/health`
-- MySQL: `localhost:3306` (inside Docker network as `db:3306`)
+- PostgreSQL: `localhost:5432` (inside Docker network as `db:5432`)
 
 The frontend is served by nginx and API requests are proxied to the Express backend.
 
-## Current scope (infrastructure only)
+## Current scope (PostgreSQL foundation only)
 
-This Docker stack currently validates infrastructure wiring only:
+This Docker stack establishes the PostgreSQL database foundation:
 
 - Frontend container builds and serves static assets
 - Express backend boots and responds on `/health`
-- MySQL service starts and is reachable on `localhost:3306`
+- PostgreSQL service starts, becomes healthy, and runs `bookrunner.sql` when the data volume is first initialized
+- Backend receives `DATABASE_URL` for future PostgreSQL-backed API work
 
-Legacy auth/cart/orders API flows are not migrated in this stack yet and are tracked in:
+**Backend data access (auth, cart, orders) is not yet implemented** and is tracked in:
 
 - #5 (auth)
 - #6 (cart)
 - #7 (orders)
 
-## Local verification notes
+`DATABASE_URL` is wired into the backend service environment so those issues can connect immediately without further Docker changes.
 
-Verified locally with:
+## Local verification
+
+Run the full stack:
 
 ```bash
 docker compose up --build
 ```
 
-Then checked:
+Expected results:
 
-- Frontend load: `http://localhost:8080`
-- Backend health: `http://localhost:3000/health`
-- Proxied health: `http://localhost:8080/health`
-- MySQL startup: service healthy and reachable on `localhost:3306`
+- PostgreSQL becomes healthy (`pg_isready` passes)
+- Schema tables (`users`, `cart_items`, `orders`, `order_items`) are created from `bookrunner.sql`
+- Backend `/health` returns `200 {"status":"ok"}`
+- Frontend is accessible at `http://localhost:8080`
+- Backend health is accessible at `http://localhost:3000/health` and via proxy at `http://localhost:8080/health`
+
+> **Note:** PostgreSQL starts and initializes the schema, but backend API routes for auth/cart/orders are not yet connected. Those are implemented in #5, #6, and #7.
+
+> **Schema reset:** PostgreSQL init scripts only run when the data volume is empty. If `bookrunner.sql` changes, run `docker compose down -v` before starting the stack again to force a fresh schema initialization.
 
 ## Stop and clean up
 
@@ -95,7 +103,7 @@ npm install
 
 ```bash
 cp .env.example .env
-# Edit .env as needed (PORT, HOST, NODE_ENV)
+# Edit .env as needed (PORT, HOST, NODE_ENV, DATABASE_URL)
 ```
 
 ### Step 3: Start the server
@@ -105,6 +113,8 @@ npm start
 ```
 
 The API will be available at `http://localhost:3000` by default.
+
+`DATABASE_URL` is available for PostgreSQL-backed endpoints, but the current backend only uses `/health`. Auth, cart, and order data access are tracked separately in #5, #6, and #7.
 
 ### Health check
 
