@@ -39,6 +39,7 @@ This Docker stack establishes the PostgreSQL database foundation:
 - Frontend container builds and serves static assets
 - Express backend boots and responds on `/health`
 - PostgreSQL service starts, becomes healthy, and runs `bookrunner.sql` to initialize the schema
+- Backend receives `DATABASE_URL` for future PostgreSQL-backed API work
 
 **Backend data access (auth, cart, orders) is not yet implemented** and is tracked in:
 
@@ -110,6 +111,8 @@ npm start
 ```
 
 The API will be available at `http://localhost:3000` by default.
+
+`DATABASE_URL` is available for PostgreSQL-backed endpoints, but the current backend only uses `/health`. Auth, cart, and order data access are tracked separately in #5, #6, and #7.
 
 ### Health check
 
