@@ -3,10 +3,31 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
 const db = require('../db');
 
 const router = express.Router();
 const BCRYPT_ROUNDS = 12;
+
+// ---------------------------------------------------------------------------
+// Rate limiters
+// ---------------------------------------------------------------------------
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later' },
+});
+
+const profileLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later' },
+});
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -15,7 +36,7 @@ const BCRYPT_ROUNDS = 12;
 function signToken(user) {
   const secret = process.env.JWT_SECRET;
   if (!secret) throw new Error('JWT_SECRET is not configured');
-  return jwt.sign({ sub: user.id, email: user.email }, secret, { expiresIn: '24h' });
+  return jwt.sign({ sub: String(user.id), email: user.email }, secret, { expiresIn: '24h' });
 }
 
 function requireAuth(req, res, next) {
@@ -39,7 +60,7 @@ function requireAuth(req, res, next) {
 //   Body contains only `email` + `password`                       → login
 // ---------------------------------------------------------------------------
 
-router.post('/resources/api_user.php', async (req, res) => {
+router.post('/resources/api_user.php', authLimiter, async (req, res) => {
   const { email, password } = req.body ?? {};
   const name = req.body?.name ?? req.body?.username;
 
@@ -89,10 +110,10 @@ router.post('/resources/api_user.php', async (req, res) => {
 // GET /resources/api_user.php/id/:id  – fetch profile (authenticated)
 // ---------------------------------------------------------------------------
 
-router.get('/resources/api_user.php/id/:id', requireAuth, async (req, res) => {
+router.get('/resources/api_user.php/id/:id', profileLimiter, requireAuth, async (req, res) => {
   const { id } = req.params;
 
-  if (req.user.sub !== id) {
+  if (String(req.user.sub) !== String(id)) {
     return res.status(403).json({ error: 'Forbidden' });
   }
 
@@ -112,19 +133,43 @@ router.get('/resources/api_user.php/id/:id', requireAuth, async (req, res) => {
 // PUT /resources/api_user.php/id/:id  – update profile (authenticated)
 // ---------------------------------------------------------------------------
 
-router.put('/resources/api_user.php/id/:id', requireAuth, async (req, res) => {
+router.put('/resources/api_user.php/id/:id', profileLimiter, requireAuth, async (req, res) => {
   const { id } = req.params;
 
-  if (req.user.sub !== id) {
+  if (String(req.user.sub) !== String(id)) {
     return res.status(403).json({ error: 'Forbidden' });
   }
 
   const updates = {};
   const { name, email, password } = req.body ?? {};
 
-  if (name !== undefined) updates.name = name;
-  if (email !== undefined) updates.email = email;
+  if (name !== undefined) {
+    const trimmedName = typeof name === 'string' ? name.trim() : '';
+    if (trimmedName.length < 1) {
+      return res.status(400).json({ error: 'Name cannot be empty' });
+    }
+    updates.name = trimmedName;
+  }
+
+  if (email !== undefined) {
+    if (typeof email !== 'string' || email.trim().length < 1) {
+      return res.status(400).json({ error: 'Email cannot be empty' });
+    }
+    // Duplicate email check (exclude current user)
+    const existing = await db.query(
+      'SELECT id FROM users WHERE email = $1 AND id != $2',
+      [email.trim(), id],
+    );
+    if (existing.rows.length > 0) {
+      return res.status(409).json({ error: 'Email already in use' });
+    }
+    updates.email = email.trim();
+  }
+
   if (password !== undefined) {
+    if (typeof password !== 'string' || password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters' });
+    }
     updates.password_hash = await bcrypt.hash(password, BCRYPT_ROUNDS);
   }
 
