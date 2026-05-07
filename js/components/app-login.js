@@ -26,12 +26,11 @@ const Login = {
         })
           .then((res) => res.json())
           .then((data) => {
-            if (!data) {
-              this.msg = "Username or password incorrect.";
+            if (!data || data.error) {
+              this.msg = data?.error || "Username or password incorrect.";
             } else {
               this.authState.isLoggedIn = true;
               this.authState.user = data;
-              sessionStorage.setItem("user", JSON.stringify(data));
               this.$router.push("/product");
             }
           })
