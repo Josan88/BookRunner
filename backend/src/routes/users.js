@@ -69,7 +69,9 @@ router.post('/resources/api_user.php', authLimiter, async (req, res) => {
   }
 
   // --- REGISTRATION ---
-  if (name !== undefined && name !== null && name !== '') {
+  // Branch on presence of the name/username field (even if empty) to surface the right error.
+  const isRegistration = 'name' in (req.body ?? {}) || 'username' in (req.body ?? {});
+  if (isRegistration) {
     if (typeof name !== 'string' || name.trim().length < 1) {
       return res.status(400).json({ error: 'Name is required' });
     }
@@ -181,12 +183,16 @@ router.put('/resources/api_user.php/id/:id', profileLimiter, requireAuth, async 
   setClauses.push(`updated_at = NOW()`);
   const values = [...Object.values(updates), id];
 
-  await db.query(
+  const result = await db.query(
     `UPDATE users SET ${setClauses.join(', ')} WHERE id = $${values.length}`,
     values,
   );
 
-  return res.status(200).json({ success: true, affected_rows: 1 });
+  if (result.rowCount === 0) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  return res.status(200).json({ success: true, affected_rows: result.rowCount });
 });
 
 module.exports = router;

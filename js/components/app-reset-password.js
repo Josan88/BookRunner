@@ -33,6 +33,11 @@ const Reset = {
       const userId = this.authState.user?.id;
       const token = this.authState.user?.token;
 
+      if (!this.authState.isLoggedIn || !userId || !token) {
+        this.msg = "You must be logged in to reset your password.";
+        return;
+      }
+
       fetch(`resources/api_user.php/id/${userId}`, {
         method: "PUT",
         headers: {
