@@ -79,10 +79,6 @@ router.post('/resources/api_cart.php', cartLimiter, requireAuth, asyncHandler(as
      VALUES ($1, $2, $3, $4, $5, $6, $7)
      ON CONFLICT (user_id, book_id)
      DO UPDATE SET
-       title = EXCLUDED.title,
-       volume = EXCLUDED.volume,
-       cover = EXCLUDED.cover,
-       unit_price = EXCLUDED.unit_price,
        quantity = cart_items.quantity + EXCLUDED.quantity,
        updated_at = NOW()
      RETURNING ${CART_COLUMNS}`,
@@ -140,6 +136,7 @@ router.use((error, _req, res, next) => {
     return next(error);
   }
 
+  console.error(error);
   return res.status(500).json({ error: 'Internal server error' });
 });
 
