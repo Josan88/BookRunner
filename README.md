@@ -6,10 +6,11 @@
 
 ## Start the full local stack
 
-1. (Optional) Copy environment variables to override defaults:
+1. Copy environment variables and set `JWT_SECRET`:
 
    ```bash
    cp .env.example .env
+   # Edit .env and replace JWT_SECRET with a long random value.
    ```
 
 2. Start frontend + Express backend + PostgreSQL:
@@ -18,7 +19,7 @@
    docker compose up --build
    ```
 
-This is the single command that starts the local stack.
+After `.env` is configured, this is the single command that starts the local stack.
 
 ## Local URLs
 
@@ -32,18 +33,17 @@ All published ports are loopback-only (`127.0.0.1`) for local development.
 
 The frontend is served by nginx and API requests are proxied to the Express backend.
 
-## Current scope (PostgreSQL foundation only)
+## Current Scope
 
-This Docker stack establishes the PostgreSQL database foundation:
+This Docker stack establishes the PostgreSQL-backed local application:
 
 - Frontend container builds and serves static assets
-- Express backend boots and responds on `/health`
+- Express backend boots, responds on `/health`, and serves the auth/profile API
 - PostgreSQL service starts, becomes healthy, and runs `bookrunner.sql` when the data volume is first initialized
-- Backend receives `DATABASE_URL` for future PostgreSQL-backed API work
+- Backend receives `DATABASE_URL` and `JWT_SECRET` for PostgreSQL-backed auth
 
-**Backend data access (auth, cart, orders) is not yet implemented** and is tracked in:
+**Backend data access for cart and orders is not yet implemented** and is tracked in:
 
-- #5 (auth)
 - #6 (cart)
 - #7 (orders)
 
@@ -54,6 +54,8 @@ This Docker stack establishes the PostgreSQL database foundation:
 Run the full stack:
 
 ```bash
+cp .env.example .env
+# Edit .env and replace JWT_SECRET with a long random value.
 docker compose up --build
 ```
 
@@ -62,10 +64,11 @@ Expected results:
 - PostgreSQL becomes healthy (`pg_isready` passes)
 - Schema tables (`users`, `cart_items`, `orders`, `order_items`) are created from `bookrunner.sql`
 - Backend `/health` returns `200 {"status":"ok"}`
+- Auth/profile requests under `/resources/api_user.php` are handled by the Express backend
 - Frontend is accessible at `http://localhost:8080`
 - Backend health is accessible at `http://localhost:3000/health` and via proxy at `http://localhost:8080/health`
 
-> **Note:** PostgreSQL starts and initializes the schema, but backend API routes for auth/cart/orders are not yet connected. Those are implemented in #5, #6, and #7.
+> **Note:** PostgreSQL starts and initializes the schema, and auth/profile routes are connected. Cart and order data access are tracked separately in #6 and #7.
 
 > **Schema reset:** PostgreSQL init scripts only run when the data volume is empty. If `bookrunner.sql` changes, run `docker compose down -v` before starting the stack again to force a fresh schema initialization.
 

@@ -54,13 +54,17 @@ function requireAuth(req, res, next) {
   }
 }
 
+function asyncHandler(handler) {
+  return (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
+}
+
 // ---------------------------------------------------------------------------
 // POST /resources/api_user.php
 //   Body contains `name` (or `username`) + `email` + `password`  → register
 //   Body contains only `email` + `password`                       → login
 // ---------------------------------------------------------------------------
 
-router.post('/resources/api_user.php', authLimiter, async (req, res) => {
+router.post('/resources/api_user.php', authLimiter, asyncHandler(async (req, res) => {
   const { email, password } = req.body ?? {};
   const name = req.body?.name ?? req.body?.username;
 
@@ -106,13 +110,13 @@ router.post('/resources/api_user.php', authLimiter, async (req, res) => {
 
   const token = signToken(user);
   return res.status(200).json({ id: user.id, name: user.name, email: user.email, token });
-});
+}));
 
 // ---------------------------------------------------------------------------
 // GET /resources/api_user.php/id/:id  – fetch profile (authenticated)
 // ---------------------------------------------------------------------------
 
-router.get('/resources/api_user.php/id/:id', profileLimiter, requireAuth, async (req, res) => {
+router.get('/resources/api_user.php/id/:id', profileLimiter, requireAuth, asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   if (String(req.user.sub) !== String(id)) {
@@ -129,13 +133,13 @@ router.get('/resources/api_user.php/id/:id', profileLimiter, requireAuth, async 
   }
 
   return res.status(200).json(result.rows[0]);
-});
+}));
 
 // ---------------------------------------------------------------------------
 // PUT /resources/api_user.php/id/:id  – update profile (authenticated)
 // ---------------------------------------------------------------------------
 
-router.put('/resources/api_user.php/id/:id', profileLimiter, requireAuth, async (req, res) => {
+router.put('/resources/api_user.php/id/:id', profileLimiter, requireAuth, asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   if (String(req.user.sub) !== String(id)) {
@@ -193,6 +197,14 @@ router.put('/resources/api_user.php/id/:id', profileLimiter, requireAuth, async 
   }
 
   return res.status(200).json({ success: true, affected_rows: result.rowCount });
+}));
+
+router.use((error, _req, res, next) => {
+  if (res.headersSent) {
+    return next(error);
+  }
+
+  return res.status(500).json({ error: 'Internal server error' });
 });
 
 module.exports = router;

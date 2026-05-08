@@ -5,6 +5,8 @@ process.env.JWT_SECRET = 'test-secret-for-unit-tests';
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const jwt = require('jsonwebtoken');
 
 const db = require('./db');
@@ -221,6 +223,27 @@ test('POST /resources/api_user.php returns 401 when user not found', async (t) =
       },
     );
     assert.equal(response.status, 401);
+  });
+});
+
+test('POST /resources/api_user.php returns JSON 500 when database query fails', async (t) => {
+  t.mock.method(db, 'query', async () => {
+    throw new Error('database unavailable');
+  });
+
+  await withServer(async (port) => {
+    const response = await fetch(
+      `http://127.0.0.1:${port}/resources/api_user.php`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'alice@example.com', password: 'correctpassword' }),
+        signal: AbortSignal.timeout(1000),
+      },
+    );
+    assert.equal(response.status, 500);
+    const payload = await response.json();
+    assert.equal(payload.error, 'Internal server error');
   });
 });
 
@@ -467,4 +490,16 @@ test('PUT /resources/api_user.php/id/:id updates password successfully', async (
     const payload = await response.json();
     assert.equal(payload.success, true);
   });
+});
+
+test('reset password template shows success before logged-out warning after password change', () => {
+  const resetComponentPath = path.join(__dirname, '..', '..', 'js', 'components', 'app-reset-password.js');
+  const source = fs.readFileSync(resetComponentPath, 'utf8');
+
+  const submittedBranch = source.indexOf('v-if="submitted"');
+  const loggedOutBranch = source.indexOf('v-else-if="!authState.isLoggedIn"');
+
+  assert.notEqual(submittedBranch, -1, 'template should have an explicit submitted success branch');
+  assert.notEqual(loggedOutBranch, -1, 'template should still show a logged-out warning branch');
+  assert.ok(submittedBranch < loggedOutBranch, 'submitted branch must be evaluated before logged-out warning');
 });

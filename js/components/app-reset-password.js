@@ -86,12 +86,20 @@ const Reset = {
               <img src="images/logo_login.png" alt="Logo" class="img-fluid mb-4 d-block">
               <h2 class="text-center mt-2">Password Reset</h2>
               <br/>
-              <template v-if="!authState.isLoggedIn">
+              <template v-if="submitted">
+                <div class="alert alert-success text-center">
+                  {{ msg }}
+                </div>
+                <div class="text-center mt-4">
+                  <router-link to="/login" class="text-primary">Back to Login</router-link>
+                </div>
+              </template>
+              <template v-else-if="!authState.isLoggedIn">
                 <div class="alert alert-warning text-center">
                   Please <router-link to="/login" class="alert-link">log in</router-link> to reset your password.
                 </div>
               </template>
-              <template v-else-if="!submitted">
+              <template v-else>
                 <div class="mb-2">
                   <v-text-field
                     name="password"
@@ -131,14 +139,6 @@ const Reset = {
                   <v-btn class="btn btn-theme-primary rounded-3" block size="large" variant="flat" @click="submitNewPassword">
                     Reset Password
                   </v-btn>
-                </div>
-              </template>
-              <template v-else>
-                <div class="alert alert-success text-center">
-                  {{ msg }}
-                </div>
-                <div class="text-center mt-4">
-                  <router-link to="/login" class="text-primary">Back to Login</router-link>
                 </div>
               </template>
             </div>
