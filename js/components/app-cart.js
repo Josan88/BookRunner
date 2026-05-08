@@ -76,7 +76,7 @@ const Cart = {
         return;
       }
 
-      fetch(`resources/api_cart.php/id/${id}`, {
+      fetch(`resources/api_cart.php/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -97,7 +97,7 @@ const Cart = {
         return;
       }
 
-      fetch(`resources/api_cart.php/id/${item.id}`, {
+      fetch(`resources/api_cart.php/${item.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -159,7 +159,7 @@ const Cart = {
             // Order successful, delete items from cart
             Promise.all(
               this.selectedItems.map(item =>
-                fetch(`resources/api_cart.php/id/${item.id}`, {
+                fetch(`resources/api_cart.php/${item.id}`, {
                   method: "DELETE",
                   headers: {
                     "Content-Type": "application/json",

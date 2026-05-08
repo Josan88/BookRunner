@@ -1,10 +1,18 @@
 'use strict';
 
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const db = require('../db');
 const { asyncHandler, requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
+const cartLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later' },
+});
 const CART_COLUMNS = `
   id,
   user_id,
@@ -37,7 +45,7 @@ function resolveBookId(bookId, bookTitle, volume) {
   return normalizeRequiredText(bookId) ?? `${bookTitle}::${volume}`;
 }
 
-router.get('/resources/api_cart.php', requireAuth, asyncHandler(async (req, res) => {
+router.get('/resources/api_cart.php', cartLimiter, requireAuth, asyncHandler(async (req, res) => {
   const result = await db.query(
     `SELECT ${CART_COLUMNS} FROM cart_items WHERE user_id = $1 ORDER BY created_at DESC`,
     [req.user.sub],
@@ -46,7 +54,7 @@ router.get('/resources/api_cart.php', requireAuth, asyncHandler(async (req, res)
   return res.status(200).json(result.rows);
 }));
 
-router.post('/resources/api_cart.php', requireAuth, asyncHandler(async (req, res) => {
+router.post('/resources/api_cart.php', cartLimiter, requireAuth, asyncHandler(async (req, res) => {
   const bookTitle = normalizeRequiredText(req.body?.book_title);
   const volume = normalizeRequiredText(req.body?.volume);
   const cover = normalizeRequiredText(req.body?.cover);
@@ -83,7 +91,7 @@ router.post('/resources/api_cart.php', requireAuth, asyncHandler(async (req, res
   return res.status(201).json(result.rows[0]);
 }));
 
-router.put('/resources/api_cart.php/id/:id', requireAuth, asyncHandler(async (req, res) => {
+router.put('/resources/api_cart.php/:id', cartLimiter, requireAuth, asyncHandler(async (req, res) => {
   const quantity = normalizeQuantity(req.body?.quantity);
 
   if (!quantity) {
@@ -105,7 +113,7 @@ router.put('/resources/api_cart.php/id/:id', requireAuth, asyncHandler(async (re
   return res.status(200).json(result.rows[0]);
 }));
 
-router.delete('/resources/api_cart.php/id/:id', requireAuth, asyncHandler(async (req, res) => {
+router.delete('/resources/api_cart.php/:id', cartLimiter, requireAuth, asyncHandler(async (req, res) => {
   const result = await db.query(
     'DELETE FROM cart_items WHERE id = $1 AND user_id = $2 RETURNING id',
     [req.params.id, req.user.sub],

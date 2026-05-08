@@ -592,7 +592,7 @@ test('POST /resources/api_cart.php adds a cart item for the authenticated user',
   assert.equal(calls[0].params[0], userId);
 });
 
-test('PUT /resources/api_cart.php/id/:id updates an owned cart item', async (t) => {
+test('PUT /resources/api_cart.php/:id updates an owned cart item', async (t) => {
   const userId = 'user-uuid-1';
   const token = makeToken(userId);
 
@@ -610,7 +610,7 @@ test('PUT /resources/api_cart.php/id/:id updates an owned cart item', async (t) 
   }));
 
   await withServer(async (port) => {
-    const response = await fetch(`http://127.0.0.1:${port}/resources/api_cart.php/id/cart-1`, {
+    const response = await fetch(`http://127.0.0.1:${port}/resources/api_cart.php/cart-1`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -626,13 +626,13 @@ test('PUT /resources/api_cart.php/id/:id updates an owned cart item', async (t) 
   });
 });
 
-test('PUT /resources/api_cart.php/id/:id returns 404 for another user cart item', async (t) => {
+test('PUT /resources/api_cart.php/:id returns 404 for another user cart item', async (t) => {
   const token = makeToken('user-uuid-1');
 
   t.mock.method(db, 'query', async () => ({ rows: [] }));
 
   await withServer(async (port) => {
-    const response = await fetch(`http://127.0.0.1:${port}/resources/api_cart.php/id/cart-1`, {
+    const response = await fetch(`http://127.0.0.1:${port}/resources/api_cart.php/cart-1`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -645,13 +645,13 @@ test('PUT /resources/api_cart.php/id/:id returns 404 for another user cart item'
   });
 });
 
-test('DELETE /resources/api_cart.php/id/:id deletes an owned cart item', async (t) => {
+test('DELETE /resources/api_cart.php/:id deletes an owned cart item', async (t) => {
   const token = makeToken('user-uuid-1');
 
   t.mock.method(db, 'query', async () => ({ rowCount: 1 }));
 
   await withServer(async (port) => {
-    const response = await fetch(`http://127.0.0.1:${port}/resources/api_cart.php/id/cart-1`, {
+    const response = await fetch(`http://127.0.0.1:${port}/resources/api_cart.php/cart-1`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -664,13 +664,13 @@ test('DELETE /resources/api_cart.php/id/:id deletes an owned cart item', async (
   });
 });
 
-test('DELETE /resources/api_cart.php/id/:id returns 404 for another user cart item', async (t) => {
+test('DELETE /resources/api_cart.php/:id returns 404 for another user cart item', async (t) => {
   const token = makeToken('user-uuid-1');
 
   t.mock.method(db, 'query', async () => ({ rowCount: 0 }));
 
   await withServer(async (port) => {
-    const response = await fetch(`http://127.0.0.1:${port}/resources/api_cart.php/id/cart-1`, {
+    const response = await fetch(`http://127.0.0.1:${port}/resources/api_cart.php/cart-1`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     });
