@@ -2,10 +2,8 @@ const Profile = {
   inject: ["authState"],
   data() {
     return {
-      username: "",
+      name: "",
       email: "",
-      age: "",
-      gender: "",
       editMode: false,
       recentPurchases: [],
     };
@@ -19,15 +17,16 @@ const Profile = {
   methods: {
     fetchProfile() {
       const userId = this.authState.user?.id;
-      if (this.authState.isLoggedIn && userId) {
-        fetch(`resources/api_user.php/id/${userId}`)
+      const token = this.authState.user?.token;
+      if (this.authState.isLoggedIn && userId && token) {
+        fetch(`resources/api_user.php/id/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
           .then(res => res.json())
           .then(data => {
-            if (data) {
-              this.username = data.username || "";
+            if (data && !data.error) {
+              this.name = data.name || "";
               this.email = data.email || "";
-              this.age = data.age || "";
-              this.gender = data.gender || "";
             }
           });
       }
@@ -52,15 +51,17 @@ const Profile = {
 
     saveProfile() {
       const userId = this.authState.user?.id;
-      if (this.authState.isLoggedIn && userId) {
+      const token = this.authState.user?.token;
+      if (this.authState.isLoggedIn && userId && token) {
         fetch(`resources/api_user.php/id/${userId}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
           body: JSON.stringify({
-            username: this.username,
+            name: this.name,
             email: this.email,
-            age: this.age,
-            gender: this.gender,
           }),
         })
           .then(res => res.json())
@@ -120,24 +121,11 @@ const Profile = {
                   <form @submit.prevent>
                     <div class="mb-3">
                       <label class="form-label fw-semibold">Username</label>
-                      <input type="text" class="form-control" v-model="username" :readonly="!editMode" :class="editMode ? 'bg-light border-primary' : ''">
+                      <input type="text" class="form-control" v-model="name" :readonly="!editMode" :class="editMode ? 'bg-light border-primary' : ''">
                     </div>
                     <div class="mb-3">
                       <label class="form-label fw-semibold">Email</label>
                       <input type="email" class="form-control" v-model="email" readonly>
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label fw-semibold">Age</label>
-                      <input type="number" class="form-control" v-model="age" :readonly="!editMode" :class="editMode ? 'bg-light border-primary' : ''">
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label fw-semibold">Gender</label>
-                      <select class="form-select" v-model="gender" :disabled="!editMode" :class="editMode ? 'bg-light border-primary' : ''">
-                        <option value="" disabled>Select gender</option>
-                        <option>Male</option>
-                        <option>Female</option>
-                        <option>Other</option>
-                      </select>
                     </div>
 
                     <div class="row mb-4 mt-5">

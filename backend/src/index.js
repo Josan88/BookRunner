@@ -3,6 +3,7 @@
 require('dotenv').config();
 
 const express = require('express');
+const userRoutes = require('./routes/users');
 
 const app = express();
 const DEFAULT_PORT = 3000;
@@ -34,6 +35,8 @@ app.use(express.json());
 app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'ok' });
 });
+
+app.use(userRoutes);
 
 if (require.main === module) {
   app.listen(PORT, HOST, () => {

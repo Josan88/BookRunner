@@ -26,12 +26,11 @@ const Login = {
         })
           .then((res) => res.json())
           .then((data) => {
-            if (!data) {
-              this.msg = "Username or password incorrect.";
+            if (!data || data.error) {
+              this.msg = data?.error || "Email or password incorrect.";
             } else {
               this.authState.isLoggedIn = true;
               this.authState.user = data;
-              sessionStorage.setItem("user", JSON.stringify(data));
               this.$router.push("/product");
             }
           })
@@ -89,7 +88,7 @@ const Login = {
                   required
                 />
                 <div class="text-end mt-0">
-                  <router-link to="/reset-pw" class="text-primary">Forgot Password?</router-link>
+                  <small class="text-muted">To change your password, visit your profile after logging in.</small>
                 </div>
               </div>
 

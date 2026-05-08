@@ -15,12 +15,10 @@ const Register = {
               <h2 class="text-center">Create Account</h2>
               <br />
 
-              <v-text-field v-model="username" :rules="usernameRules" label="Username" color="#0d6efd" variant="outlined" prepend-inner-icon="mdi-account-outline" class="login_field rounded-3 mb-2" required />
+              <v-text-field v-model="name" :rules="nameRules" label="Username" color="#0d6efd" variant="outlined" prepend-inner-icon="mdi-account-outline" class="login_field rounded-3 mb-2" required />
               <v-text-field v-model="email" :rules="emailRules" label="Email" color="#0d6efd" variant="outlined" prepend-inner-icon="mdi-email-outline" class="login_field rounded-3 mb-2" required />
               <v-text-field v-model="password" :rules="passwordRules" :type="showPassword ? 'text' : 'password'" :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="togglePasswordVisibility" label="Password" color="#0d6efd" variant="outlined" prepend-inner-icon="mdi-lock-outline" class="login_field rounded-3 mb-2" required />
               <v-text-field v-model="confirmPassword" :rules="confirmPasswordRules" :type="showPassword ? 'text' : 'password'" :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="togglePasswordVisibility" label="Confirm Password" color="#0d6efd" variant="outlined" prepend-inner-icon="mdi-lock-check-outline" class="login_field rounded-3 mb-2" required />
-              <v-text-field v-model="age" :rules="ageRules" type="number" min="12" max="100" label="Age" color="#0d6efd" variant="outlined" prepend-inner-icon="mdi-cake-variant-outline" class="login_field rounded-3 mb-2" required />
-              <v-select v-model="gender" :items="['Male', 'Female', 'Other']" :rules="genderRules" label="Gender" color="#0d6efd" prepend-inner-icon="mdi-gender-male-female" variant="outlined" class="login_field rounded-3 mb-2" required />
               <v-checkbox v-model="agreed" :rules="agreeRules" label="I agree to the Terms and Conditions of Book Runner" class="mb-5 mx-0" color="#0d6efd" />
 
               <div class="mb-3 text-center text-danger">
@@ -44,16 +42,14 @@ const Register = {
 
   data: () => ({
     msg: "",
-    username: "",
+    name: "",
     email: "",
     password: "",
     confirmPassword: "",
-    gender: null,
-    age: "",
     showPassword: false,
     agreed: false,
 
-    usernameRules: [
+    nameRules: [
       v => !!v || "Username is required",
       v => v.length >= 3 || "Username must have at least 3 characters"
     ],
@@ -68,13 +64,6 @@ const Register = {
     confirmPasswordRules: [
       v => !!v || "Confirm password is required",
       v => true // default, updated in watcher
-    ],
-    ageRules: [
-      v => !!v || "Age is required",
-      v => v >= 12 || "You must be at least 12 years old"
-    ],
-    genderRules: [
-      v => !!v || "Gender is required"
     ],
     agreeRules: [
       v => !!v || "You must agree to the terms and conditions"
@@ -99,11 +88,9 @@ const Register = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: this.username,
+          name: this.name,
           email: this.email,
           password: this.password,
-          age: this.age,
-          gender: this.gender,
         }),
       };
 

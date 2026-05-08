@@ -2,10 +2,8 @@ const Reset = {
   inject: ["authState"],
 
   data: () => ({
-    email: "",
     msg: "",
     submitted: false,
-    step: 1, // 1: email input, 2: password reset
     password: "",
     confirmPassword: "",
     showPassword: false,
@@ -20,35 +18,6 @@ const Reset = {
   }),
 
   methods: {
-    logout() {
-      if (this.authState) {
-        this.authState.isLoggedIn = false;
-        this.authState.user = null;
-      }
-    },
-
-    submitEmail() {
-      this.msg = "";
-      if (!this.email) {
-        this.msg = "Please enter your email address.";
-        return;
-      }
-
-      fetch("resources/api_user.php?getAllEmails=true")
-        .then((res) => res.json())
-        .then((emails) => {
-          if (Array.isArray(emails) && emails.includes(this.email)) {
-            this.step = 2;
-            this.msg = "";
-          } else {
-            this.msg = "This email is not registered in our system.";
-          }
-        })
-        .catch(() => {
-          this.msg = "An error occurred. Please try again later.";
-        });
-    },
-
     submitNewPassword() {
       this.msg = "";
       if (!this.password || !this.confirmPassword) {
@@ -61,33 +30,36 @@ const Reset = {
         return;
       }
 
-      // Get user ID based on email, then update password
-      fetch(`resources/api_user.php?email=${encodeURIComponent(this.email)}`)
-        .then((res) => res.json())
-        .then((user) => {
-          if (!user?.id) {
-            this.msg = "User not found.";
-            return;
-          }
+      const userId = this.authState.user?.id;
+      const token = this.authState.user?.token;
 
-          fetch(`resources/api_user.php/id/${user.id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ password: this.password }),
-          })
-            .then((res) => res.json())
-            .then((data) => {
-              this.submitted = true;
-              this.msg = data?.success
-                ? "Your password has been reset successfully. You can now log in with your new password."
-                : data?.error || "An error occurred while resetting your password.";
-            })
-            .catch(() => {
-              this.msg = "An error occurred while resetting your password.";
-            });
+      if (!this.authState.isLoggedIn || !userId || !token) {
+        this.msg = "You must be logged in to reset your password.";
+        return;
+      }
+
+      fetch(`resources/api_user.php/id/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ password: this.password }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          this.submitted = true;
+          this.msg = data?.success
+            ? "Your password has been reset successfully."
+            : data?.error || "An error occurred while resetting your password.";
+
+          if (data?.success) {
+            this.authState.isLoggedIn = false;
+            this.authState.user = null;
+          }
         })
         .catch(() => {
-          this.msg = "An error occurred. Please try again later.";
+          this.msg = "An error occurred while resetting your password.";
         });
     },
 
@@ -114,29 +86,20 @@ const Reset = {
               <img src="images/logo_login.png" alt="Logo" class="img-fluid mb-4 d-block">
               <h2 class="text-center mt-2">Password Reset</h2>
               <br/>
-              <template v-if="step === 1 && !submitted">
-                <div class="mb-2">
-                  <v-text-field
-                    name="email"
-                    v-model="email"
-                    color="#0d6efd"
-                    label="Email"
-                    variant="outlined"
-                    prepend-inner-icon="mdi-email-outline"
-                    class="login_field rounded-3"
-                    required
-                  ></v-text-field>
+              <template v-if="submitted">
+                <div class="alert alert-success text-center">
+                  {{ msg }}
                 </div>
-                <div class="mb-3 text-center text-danger">
-                  <p v-if="msg">{{ msg }}</p>
-                </div>
-                <div class="mb-3">
-                  <v-btn class="btn btn-theme-primary rounded-3" block size="large" variant="flat" @click="submitEmail">
-                    Next <v-icon icon="mdi-arrow-right" class="ms-2"> </v-icon>
-                  </v-btn>
+                <div class="text-center mt-4">
+                  <router-link to="/login" class="text-primary">Back to Login</router-link>
                 </div>
               </template>
-              <template v-else-if="step === 2 && !submitted">
+              <template v-else-if="!authState.isLoggedIn">
+                <div class="alert alert-warning text-center">
+                  Please <router-link to="/login" class="alert-link">log in</router-link> to reset your password.
+                </div>
+              </template>
+              <template v-else>
                 <div class="mb-2">
                   <v-text-field
                     name="password"
@@ -173,17 +136,9 @@ const Reset = {
                   <p v-if="msg">{{ msg }}</p>
                 </div>
                 <div class="mb-3">
-                  <v-btn class="btn btn-theme-primary rounded-3" block size="large" variant="flat" @click="submitNewPassword(); logout();">
+                  <v-btn class="btn btn-theme-primary rounded-3" block size="large" variant="flat" @click="submitNewPassword">
                     Reset Password
                   </v-btn>
-                </div>
-              </template>
-              <template v-else>
-                <div class="alert alert-success text-center">
-                  {{ msg }}
-                </div>
-                <div class="text-center mt-4">
-                  <router-link to="/" class="text-primary">Back to Home Page</router-link>
                 </div>
               </template>
             </div>
