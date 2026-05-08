@@ -629,7 +629,7 @@ test('PUT /resources/api_cart.php/:id updates an owned cart item', async (t) => 
 test('PUT /resources/api_cart.php/:id returns 404 for another user cart item', async (t) => {
   const token = makeToken('user-uuid-1');
 
-  t.mock.method(db, 'query', async () => ({ rows: [] }));
+  t.mock.method(db, 'query', async () => ({ rows: [], rowCount: 0 }));
 
   await withServer(async (port) => {
     const response = await fetch(`http://127.0.0.1:${port}/resources/api_cart.php/cart-1`, {

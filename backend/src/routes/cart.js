@@ -42,7 +42,16 @@ function normalizePrice(value) {
 }
 
 function resolveBookId(bookId, bookTitle, volume) {
-  return normalizeRequiredText(bookId) ?? `${bookTitle}::${volume}`;
+  const normalizedBookId = normalizeRequiredText(bookId);
+  if (normalizedBookId) {
+    return normalizedBookId;
+  }
+
+  if (!bookTitle || !volume) {
+    return null;
+  }
+
+  return `${bookTitle}::${volume}`;
 }
 
 router.get('/resources/api_cart.php', cartLimiter, requireAuth, asyncHandler(async (req, res) => {
@@ -106,7 +115,7 @@ router.put('/resources/api_cart.php/:id', cartLimiter, requireAuth, asyncHandler
     [quantity, req.params.id, req.user.sub],
   );
 
-  if (result.rows.length === 0) {
+  if (result.rowCount === 0) {
     return res.status(404).json({ error: 'Cart item not found' });
   }
 
