@@ -138,16 +138,19 @@ const Book = {
     },
 
     addToCart() {
-      if (!this.authState?.isLoggedIn) {
+      const token = this.authState?.user?.token;
+      if (!this.authState?.isLoggedIn || !token) {
         this.$router.push("/login");
         return;
       }
 
-      fetch("resources/api_cart.php/cart", {
+      fetch("resources/api_cart.php", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
-          user_id: this.authState.user.id,
           book_title: this.title,
           cover: this.cover,
           volume: this.volume,

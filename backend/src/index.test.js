@@ -492,6 +492,193 @@ test('PUT /resources/api_user.php/id/:id updates password successfully', async (
   });
 });
 
+// ---------------------------------------------------------------------------
+// /resources/api_cart.php – authenticated cart operations (mocked db)
+// ---------------------------------------------------------------------------
+
+test('GET /resources/api_cart.php returns only the authenticated user cart', async (t) => {
+  const userId = 'user-uuid-1';
+  const token = makeToken(userId);
+  const calls = [];
+
+  t.mock.method(db, 'query', async (sql, params) => {
+    calls.push({ sql, params });
+    return {
+      rows: [{
+        id: 'cart-1',
+        user_id: userId,
+        book_id: 'My Book::1',
+        book_title: 'My Book',
+        volume: '1',
+        cover: '/covers/my-book.jpg',
+        price: '12.90',
+        quantity: 2,
+      }],
+    };
+  });
+
+  await withServer(async (port) => {
+    const response = await fetch(
+      `http://127.0.0.1:${port}/resources/api_cart.php?user_id=other-user`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+    assert.equal(response.status, 200);
+
+    const payload = await response.json();
+    assert.equal(payload.length, 1);
+    assert.equal(payload[0].user_id, userId);
+    assert.equal(payload[0].book_title, 'My Book');
+  });
+
+  assert.equal(calls.length, 1);
+  assert.match(calls[0].sql, /FROM cart_items WHERE user_id = \$1/);
+  assert.deepEqual(calls[0].params, [userId]);
+});
+
+test('GET /resources/api_cart.php returns 401 without Authorization header', async () => {
+  await withServer(async (port) => {
+    const response = await fetch(`http://127.0.0.1:${port}/resources/api_cart.php`);
+    assert.equal(response.status, 401);
+  });
+});
+
+test('POST /resources/api_cart.php adds a cart item for the authenticated user', async (t) => {
+  const userId = 'user-uuid-1';
+  const token = makeToken(userId);
+  const calls = [];
+
+  t.mock.method(db, 'query', async (sql, params) => {
+    calls.push({ sql, params });
+    return {
+      rows: [{
+        id: 'cart-1',
+        user_id: userId,
+        book_id: 'My Book::1',
+        book_title: 'My Book',
+        volume: '1',
+        cover: '/covers/my-book.jpg',
+        price: '12.90',
+        quantity: 2,
+      }],
+    };
+  });
+
+  await withServer(async (port) => {
+    const response = await fetch(`http://127.0.0.1:${port}/resources/api_cart.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        user_id: 'other-user',
+        book_title: 'My Book',
+        volume: '1',
+        cover: '/covers/my-book.jpg',
+        price: '12.90',
+        quantity: 2,
+      }),
+    });
+
+    assert.equal(response.status, 201);
+
+    const payload = await response.json();
+    assert.equal(payload.user_id, userId);
+    assert.equal(payload.quantity, 2);
+  });
+
+  assert.equal(calls.length, 1);
+  assert.match(calls[0].sql, /INSERT INTO cart_items/);
+  assert.equal(calls[0].params[0], userId);
+});
+
+test('PUT /resources/api_cart.php/id/:id updates an owned cart item', async (t) => {
+  const userId = 'user-uuid-1';
+  const token = makeToken(userId);
+
+  t.mock.method(db, 'query', async () => ({
+    rows: [{
+      id: 'cart-1',
+      user_id: userId,
+      book_id: 'My Book::1',
+      book_title: 'My Book',
+      volume: '1',
+      cover: '/covers/my-book.jpg',
+      price: '12.90',
+      quantity: 3,
+    }],
+  }));
+
+  await withServer(async (port) => {
+    const response = await fetch(`http://127.0.0.1:${port}/resources/api_cart.php/id/cart-1`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ quantity: 3 }),
+    });
+
+    assert.equal(response.status, 200);
+
+    const payload = await response.json();
+    assert.equal(payload.quantity, 3);
+  });
+});
+
+test('PUT /resources/api_cart.php/id/:id returns 404 for another user cart item', async (t) => {
+  const token = makeToken('user-uuid-1');
+
+  t.mock.method(db, 'query', async () => ({ rows: [] }));
+
+  await withServer(async (port) => {
+    const response = await fetch(`http://127.0.0.1:${port}/resources/api_cart.php/id/cart-1`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ quantity: 3 }),
+    });
+
+    assert.equal(response.status, 404);
+  });
+});
+
+test('DELETE /resources/api_cart.php/id/:id deletes an owned cart item', async (t) => {
+  const token = makeToken('user-uuid-1');
+
+  t.mock.method(db, 'query', async () => ({ rowCount: 1 }));
+
+  await withServer(async (port) => {
+    const response = await fetch(`http://127.0.0.1:${port}/resources/api_cart.php/id/cart-1`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    assert.equal(response.status, 200);
+
+    const payload = await response.json();
+    assert.equal(payload.success, true);
+    assert.equal(payload.affected_rows, 1);
+  });
+});
+
+test('DELETE /resources/api_cart.php/id/:id returns 404 for another user cart item', async (t) => {
+  const token = makeToken('user-uuid-1');
+
+  t.mock.method(db, 'query', async () => ({ rowCount: 0 }));
+
+  await withServer(async (port) => {
+    const response = await fetch(`http://127.0.0.1:${port}/resources/api_cart.php/id/cart-1`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    assert.equal(response.status, 404);
+  });
+});
+
 test('reset password template shows success before logged-out warning after password change', () => {
   const resetComponentPath = path.join(__dirname, '..', '..', 'js', 'components', 'app-reset-password.js');
   const source = fs.readFileSync(resetComponentPath, 'utf8');

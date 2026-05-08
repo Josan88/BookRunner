@@ -39,8 +39,11 @@ const Cart = {
 
   methods: {
     fetchCart() {
-      if (this.authState.isLoggedIn && this.authState.user?.id) {
-        fetch(`resources/api_cart.php/cart/user_id/${this.authState.user.id}`)
+      const token = this.authState.user?.token;
+      if (this.authState.isLoggedIn && token) {
+        fetch("resources/api_cart.php", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
           .then(res => res.json())
           .then(data => {
             this.cart = data.map(item => ({ ...item, selected: false }));
@@ -68,10 +71,17 @@ const Cart = {
     },
 
     removeFromCart(id) {
-      fetch(`resources/api_cart.php?id=${id}`, {
+      const token = this.authState.user?.token;
+      if (!token) {
+        return;
+      }
+
+      fetch(`resources/api_cart.php/id/${id}`, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       })
         .then(res => res.json())
         .then(data => {
@@ -82,9 +92,17 @@ const Cart = {
     },
 
     updateQuantity(item) {
-      fetch(`resources/api_cart.php?id=${item.id}`, {
+      const token = this.authState.user?.token;
+      if (!token) {
+        return;
+      }
+
+      fetch(`resources/api_cart.php/id/${item.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ quantity: item.quantity }),
       })
         .then(res => res.json())
@@ -141,10 +159,12 @@ const Cart = {
             // Order successful, delete items from cart
             Promise.all(
               this.selectedItems.map(item =>
-                fetch(`resources/api_cart.php?id=${item.id}`, {
+                fetch(`resources/api_cart.php/id/${item.id}`, {
                   method: "DELETE",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ id: item.id }),
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${this.authState.user?.token}`,
+                  },
                 })
               )
             ).then(() => this.fetchCart());
