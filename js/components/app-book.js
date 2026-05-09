@@ -152,17 +152,22 @@ const Book = {
         },
         body: JSON.stringify({
           book_title: this.title,
-          cover: this.cover,
           volume: this.volume,
           quantity: this.quantity,
-          price: this.price,
         }),
       })
-        .then((res) => res.json())
+        .then(async (res) => {
+          const data = await res.json().catch(() => null);
+          return { ok: res.ok, status: res.status, data };
+        })
         .then((data) => {
-          if (data.id) {
+          if (data.ok && data.data?.id) {
             this.successMessage = "Successfully added to cart!";
             setTimeout(() => (this.successMessage = ""), 3000);
+          } else if (data.status === 401) {
+            this.authState.isLoggedIn = false;
+            this.authState.user = null;
+            this.$router.push("/login");
           } else {
             alert("Failed to add to cart.");
           }

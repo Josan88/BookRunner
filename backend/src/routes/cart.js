@@ -3,6 +3,7 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const db = require('../db');
+const { findCatalogItem } = require('../catalog');
 const { asyncHandler, requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -36,24 +37,6 @@ function normalizeQuantity(value) {
   return Number.isInteger(normalized) && normalized > 0 ? normalized : null;
 }
 
-function normalizePrice(value) {
-  const normalized = Number(value);
-  return Number.isFinite(normalized) && normalized >= 0 ? normalized : null;
-}
-
-function resolveBookId(bookId, bookTitle, volume) {
-  const normalizedBookId = normalizeRequiredText(bookId);
-  if (normalizedBookId) {
-    return normalizedBookId;
-  }
-
-  if (!bookTitle || !volume) {
-    return null;
-  }
-
-  return `${bookTitle}::${volume}`;
-}
-
 router.get('/resources/api_cart.php', cartLimiter, requireAuth, asyncHandler(async (req, res) => {
   const result = await db.query(
     `SELECT ${CART_COLUMNS} FROM cart_items WHERE user_id = $1 ORDER BY created_at DESC`,
@@ -66,12 +49,20 @@ router.get('/resources/api_cart.php', cartLimiter, requireAuth, asyncHandler(asy
 router.post('/resources/api_cart.php', cartLimiter, requireAuth, asyncHandler(async (req, res) => {
   const bookTitle = normalizeRequiredText(req.body?.book_title);
   const volume = normalizeRequiredText(req.body?.volume);
-  const cover = normalizeRequiredText(req.body?.cover);
   const quantity = normalizeQuantity(req.body?.quantity);
-  const price = normalizePrice(req.body?.price);
 
-  if (!bookTitle || !volume || !cover || !quantity || price === null) {
-    return res.status(400).json({ error: 'book_title, volume, cover, quantity, and price are required' });
+  if (!bookTitle || !volume || !quantity) {
+    return res.status(400).json({ error: 'book_title, volume, and quantity are required' });
+  }
+
+  const catalogItem = findCatalogItem({
+    bookId: req.body?.book_id,
+    bookTitle,
+    volume,
+  });
+
+  if (!catalogItem) {
+    return res.status(404).json({ error: 'Book not found' });
   }
 
   const result = await db.query(
@@ -84,11 +75,11 @@ router.post('/resources/api_cart.php', cartLimiter, requireAuth, asyncHandler(as
      RETURNING ${CART_COLUMNS}`,
     [
       req.user.sub,
-      resolveBookId(req.body?.book_id, bookTitle, volume),
-      bookTitle,
-      volume,
-      cover,
-      price,
+      catalogItem.bookId,
+      catalogItem.bookTitle,
+      catalogItem.volume,
+      catalogItem.cover,
+      catalogItem.price,
       quantity,
     ],
   );

@@ -5,6 +5,7 @@ require('dotenv').config();
 const express = require('express');
 const userRoutes = require('./routes/users');
 const cartRoutes = require('./routes/cart');
+const orderRoutes = require('./routes/orders');
 
 const app = express();
 const DEFAULT_PORT = 3000;
@@ -39,6 +40,7 @@ app.get('/health', (_req, res) => {
 
 app.use(userRoutes);
 app.use(cartRoutes);
+app.use(orderRoutes);
 
 if (require.main === module) {
   app.listen(PORT, HOST, () => {
