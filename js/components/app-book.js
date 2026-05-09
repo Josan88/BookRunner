@@ -138,28 +138,36 @@ const Book = {
     },
 
     addToCart() {
-      if (!this.authState?.isLoggedIn) {
+      const token = this.authState?.user?.token;
+      if (!this.authState?.isLoggedIn || !token) {
         this.$router.push("/login");
         return;
       }
 
-      fetch("resources/api_cart.php/cart", {
+      fetch("resources/api_cart.php", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
-          user_id: this.authState.user.id,
           book_title: this.title,
-          cover: this.cover,
           volume: this.volume,
           quantity: this.quantity,
-          price: this.price,
         }),
       })
-        .then((res) => res.json())
+        .then(async (res) => {
+          const data = await res.json().catch(() => null);
+          return { ok: res.ok, status: res.status, data };
+        })
         .then((data) => {
-          if (data.id) {
+          if (data.ok && data.data?.id) {
             this.successMessage = "Successfully added to cart!";
             setTimeout(() => (this.successMessage = ""), 3000);
+          } else if (data.status === 401) {
+            this.authState.isLoggedIn = false;
+            this.authState.user = null;
+            this.$router.push("/login");
           } else {
             alert("Failed to add to cart.");
           }

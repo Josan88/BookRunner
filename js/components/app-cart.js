@@ -38,17 +38,49 @@ const Cart = {
   },
 
   methods: {
+    clearCart() {
+      this.cart = [];
+      this.selectedItems = [];
+    },
+
+    expireSession() {
+      this.clearCart();
+      this.authState.isLoggedIn = false;
+      this.authState.user = null;
+    },
+
     fetchCart() {
-      if (this.authState.isLoggedIn && this.authState.user?.id) {
-        fetch(`resources/api_cart.php/cart/user_id/${this.authState.user.id}`)
-          .then(res => res.json())
+      const token = this.authState.user?.token;
+      if (this.authState.isLoggedIn && token) {
+        fetch("resources/api_cart.php", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+          .then(async (res) => {
+            const data = await res.json().catch(() => null);
+
+            if (res.status === 401) {
+              this.expireSession();
+              return [];
+            }
+
+            if (!res.ok || !Array.isArray(data)) {
+              this.clearCart();
+              return [];
+            }
+
+            return data;
+          })
           .then(data => {
+            if (!Array.isArray(data)) {
+              return;
+            }
+
             this.cart = data.map(item => ({ ...item, selected: false }));
             this.updateSelectedItems();
-          });
+          })
+          .catch(() => this.clearCart());
       } else {
-        this.cart = [];
-        this.selectedItems = [];
+        this.clearCart();
       }
     },
 
@@ -68,29 +100,64 @@ const Cart = {
     },
 
     removeFromCart(id) {
-      fetch(`resources/api_cart.php?id=${id}`, {
+      const token = this.authState.user?.token;
+      if (!token) {
+        return;
+      }
+
+      fetch(`resources/api_cart.php/${id}`, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       })
-        .then(res => res.json())
-        .then(data => {
-          if (!data.error) this.fetchCart();
-          else alert("Failed to remove item.");
+        .then(async (res) => {
+          const data = await res.json().catch(() => null);
+
+          if (res.status === 401) {
+            this.expireSession();
+            return;
+          }
+
+          if (!res.ok || data?.error) {
+            alert("Failed to remove item.");
+            return;
+          }
+
+          this.fetchCart();
         })
         .catch(() => alert("An error occurred."));
     },
 
     updateQuantity(item) {
-      fetch(`resources/api_cart.php?id=${item.id}`, {
+      const token = this.authState.user?.token;
+      if (!token) {
+        return;
+      }
+
+      fetch(`resources/api_cart.php/${item.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ quantity: item.quantity }),
       })
-        .then(res => res.json())
-        .then(data => {
-          if (data.error) alert("Failed to update quantity.");
-          else this.fetchCart();
+        .then(async (res) => {
+          const data = await res.json().catch(() => null);
+
+          if (res.status === 401) {
+            this.expireSession();
+            return;
+          }
+
+          if (!res.ok || data?.error) {
+            alert("Failed to update quantity.");
+            return;
+          }
+
+          this.fetchCart();
         })
         .catch(() => alert("Error updating quantity."));
     },
@@ -110,7 +177,9 @@ const Cart = {
     },
 
     purchaseCart() {
-      if (!this.authState.isLoggedIn || !this.authState.user?.id) {
+      const token = this.authState.user?.token;
+
+      if (!this.authState.isLoggedIn || !token) {
         alert("You must be logged in to purchase.");
         return;
       }
@@ -119,35 +188,28 @@ const Cart = {
         return;
       }
 
-      const items = this.selectedItems.map(({ book_title, volume, quantity, price, cover }) => ({
-        book_title,
-        volume,
-        quantity,
-        price,
-        cover,
-      }));
+      const cartItemIds = this.selectedItems.map(({ id }) => id);
 
       fetch("resources/api_orders.php", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
-          user_id: this.authState.user.id,
-          items,
+          cart_item_ids: cartItemIds,
         }),
       })
-        .then(res => res.json())
-        .then(data => {
-          if (data.id) {
-            // Order successful, delete items from cart
-            Promise.all(
-              this.selectedItems.map(item =>
-                fetch(`resources/api_cart.php?id=${item.id}`, {
-                  method: "DELETE",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ id: item.id }),
-                })
-              )
-            ).then(() => this.fetchCart());
+        .then(async (res) => {
+          const data = await res.json().catch(() => null);
+
+          if (res.status === 401) {
+            this.expireSession();
+            return;
+          }
+
+          if (res.ok && data?.id) {
+            this.fetchCart();
           } else {
             alert("Failed to complete purchase.");
           }

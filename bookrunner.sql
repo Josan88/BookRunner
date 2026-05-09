@@ -21,6 +21,12 @@ CREATE TABLE IF NOT EXISTS cart_items (
     UNIQUE (user_id, book_id)
 );
 
+ALTER TABLE cart_items
+    ADD COLUMN IF NOT EXISTS volume VARCHAR(50) NOT NULL DEFAULT '';
+
+ALTER TABLE cart_items
+    ADD COLUMN IF NOT EXISTS cover TEXT NOT NULL DEFAULT '';
+
 CREATE TABLE IF NOT EXISTS orders (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
