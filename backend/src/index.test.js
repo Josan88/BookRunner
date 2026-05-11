@@ -970,9 +970,7 @@ test('GET /resources/api_orders.php returns authenticated user purchase history 
     assert.equal(payload.data[1].items.length, 1);
   });
 
-  assert.equal(calls[0].params[0], userId);
-  assert.notEqual(calls[0].params[0], 'someone-else');
-  assert.equal(calls[0].params.length, 1);
+  assert.deepEqual(calls[0].params, [userId]);
   assert.equal(calls[0].sql.includes('WHERE user_id = $1'), true);
   assert.ok(calls[0].sql.includes('ORDER BY created_at DESC'));
 });
