@@ -36,7 +36,7 @@ router.get('/resources/api_orders.php', ordersLimiter, requireAuth, asyncHandler
   );
 
   if (ordersResult.rows.length === 0) {
-    return res.status(200).json([]);
+    return res.status(200).json({ success: true, data: [] });
   }
 
   const orderIds = ordersResult.rows.map((order) => order.id);
@@ -60,7 +60,7 @@ router.get('/resources/api_orders.php', ordersLimiter, requireAuth, asyncHandler
     items: itemsByOrderId[order.id] || [],
   }));
 
-  return res.status(200).json(payload);
+  return res.status(200).json({ success: true, data: payload });
 }));
 
 router.post('/resources/api_orders.php', ordersLimiter, requireAuth, asyncHandler(async (req, res) => {
@@ -114,7 +114,7 @@ router.post('/resources/api_orders.php', ordersLimiter, requireAuth, asyncHandle
     );
 
     await db.query('COMMIT');
-    return res.status(201).json({ id: orderId });
+    return res.status(201).json({ success: true, data: { id: orderId } });
   } catch (error) {
     await db.query('ROLLBACK');
     throw error;

@@ -38,7 +38,9 @@ const Purchase = {
         fetch(`resources/api_orders.php?user_id=${this.authState.user.id}`)
           .then((res) => res.json())
           .then((data) => {
-            this.orders = data;
+            this.orders = Array.isArray(data?.data)
+              ? data.data
+              : (Array.isArray(data) ? data : []);
           });
       } else {
         this.orders = [];

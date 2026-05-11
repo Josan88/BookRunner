@@ -38,8 +38,12 @@ const Profile = {
         fetch(`resources/api_orders.php?user_id=${userId}`)
           .then(res => res.json())
           .then(data => {
-            if (Array.isArray(data)) {
-              this.recentPurchases = data
+            const purchases = Array.isArray(data?.data)
+              ? data.data
+              : (Array.isArray(data) ? data : []);
+
+            if (Array.isArray(purchases)) {
+              this.recentPurchases = purchases
                 .sort((a, b) => new Date(b.purchase_date) - new Date(a.purchase_date))
                 .slice(0, 3);
             } else {

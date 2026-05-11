@@ -791,7 +791,8 @@ test('POST /resources/api_orders.php creates an order from owned cart items only
     assert.equal(response.status, 201);
 
     const payload = await response.json();
-    assert.equal(payload.id, '22222222-2222-4222-8222-222222222222');
+    assert.equal(payload.success, true);
+    assert.equal(payload.data.id, '22222222-2222-4222-8222-222222222222');
   });
 
   assert.equal(calls[1].params[0], userId);
@@ -960,15 +961,19 @@ test('GET /resources/api_orders.php returns authenticated user purchase history 
 
     assert.equal(response.status, 200);
     const payload = await response.json();
-    assert.equal(payload.length, 2);
-    assert.equal(payload[0].id, '33333333-3333-4333-8333-333333333333');
-    assert.equal(payload[0].purchase_date, '2026-01-02T00:00:00.000Z');
-    assert.equal(payload[0].items.length, 1);
-    assert.equal(payload[1].id, '22222222-2222-4222-8222-222222222222');
-    assert.equal(payload[1].items.length, 1);
+    assert.equal(payload.success, true);
+    assert.equal(payload.data.length, 2);
+    assert.equal(payload.data[0].id, '33333333-3333-4333-8333-333333333333');
+    assert.equal(payload.data[0].purchase_date, '2026-01-02T00:00:00.000Z');
+    assert.equal(payload.data[0].items.length, 1);
+    assert.equal(payload.data[1].id, '22222222-2222-4222-8222-222222222222');
+    assert.equal(payload.data[1].items.length, 1);
   });
 
   assert.equal(calls[0].params[0], userId);
+  assert.notEqual(calls[0].params[0], 'someone-else');
+  assert.equal(calls[0].params.length, 1);
+  assert.equal(calls[0].sql.includes('WHERE user_id = $1'), true);
   assert.ok(calls[0].sql.includes('ORDER BY created_at DESC'));
 });
 
