@@ -26,6 +26,43 @@ function normalizeCartItemIds(values) {
   )];
 }
 
+router.get('/resources/api_orders.php', ordersLimiter, requireAuth, asyncHandler(async (req, res) => {
+  const ordersResult = await db.query(
+    `SELECT id, user_id, total_amount, status, created_at
+     FROM orders
+     WHERE user_id = $1
+     ORDER BY created_at DESC`,
+    [req.user.sub],
+  );
+
+  if (ordersResult.rows.length === 0) {
+    return res.status(200).json([]);
+  }
+
+  const orderIds = ordersResult.rows.map((order) => order.id);
+  const itemsResult = await db.query(
+    `SELECT id, order_id, book_id, title, unit_price, quantity, line_total
+     FROM order_items
+     WHERE order_id = ANY($1::uuid[])
+     ORDER BY id ASC`,
+    [orderIds],
+  );
+
+  const itemsByOrderId = itemsResult.rows.reduce((grouped, item) => {
+    grouped[item.order_id] = grouped[item.order_id] || [];
+    grouped[item.order_id].push(item);
+    return grouped;
+  }, {});
+
+  const payload = ordersResult.rows.map((order) => ({
+    ...order,
+    purchase_date: order.created_at,
+    items: itemsByOrderId[order.id] || [],
+  }));
+
+  return res.status(200).json(payload);
+}));
+
 router.post('/resources/api_orders.php', ordersLimiter, requireAuth, asyncHandler(async (req, res) => {
   const cartItemIds = normalizeCartItemIds(req.body?.cart_item_ids);
 

@@ -836,6 +836,142 @@ test('POST /resources/api_orders.php returns 404 when any cart item is not owned
   assert.equal(calls[2].sql, 'ROLLBACK');
 });
 
+test('POST /resources/api_orders.php rolls back and returns 500 when inserting order items fails', async (t) => {
+  const token = makeToken('user-uuid-1');
+  const cartItemId = '11111111-1111-4111-8111-111111111111';
+  const calls = [];
+
+  t.mock.method(db, 'query', async (sql, params) => {
+    calls.push({ sql, params });
+
+    if (sql === 'BEGIN' || sql === 'ROLLBACK') {
+      return { rows: [], rowCount: null };
+    }
+
+    if (sql.includes('FROM cart_items')) {
+      return {
+        rows: [{
+          id: cartItemId,
+          book_id: 'One Piece::1',
+          title: 'One Piece',
+          unit_price: '30.00',
+          quantity: 1,
+        }],
+        rowCount: 1,
+      };
+    }
+
+    if (sql.includes('INSERT INTO orders')) {
+      return {
+        rows: [{ id: '22222222-2222-4222-8222-222222222222' }],
+        rowCount: 1,
+      };
+    }
+
+    if (sql.includes('INSERT INTO order_items')) {
+      throw new Error('order_items insert failed');
+    }
+
+    throw new Error(`Unexpected SQL: ${sql}`);
+  });
+
+  await withServer(async (port) => {
+    const response = await fetch(`http://127.0.0.1:${port}/resources/api_orders.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ cart_item_ids: [cartItemId] }),
+    });
+
+    assert.equal(response.status, 500);
+  });
+
+  assert.equal(calls[0].sql, 'BEGIN');
+  assert.ok(calls.some((call) => call.sql === 'ROLLBACK'));
+  assert.equal(calls.some((call) => call.sql === 'COMMIT'), false);
+  assert.equal(calls.some((call) => call.sql.includes('DELETE FROM cart_items')), false);
+});
+
+test('GET /resources/api_orders.php returns authenticated user purchase history ordered by purchase date', async (t) => {
+  const userId = 'user-uuid-1';
+  const token = makeToken(userId);
+  const calls = [];
+
+  t.mock.method(db, 'query', async (sql, params) => {
+    calls.push({ sql, params });
+
+    if (sql.includes('FROM orders')) {
+      return {
+        rows: [
+          {
+            id: '33333333-3333-4333-8333-333333333333',
+            user_id: userId,
+            total_amount: '60.00',
+            status: 'completed',
+            created_at: '2026-01-02T00:00:00.000Z',
+          },
+          {
+            id: '22222222-2222-4222-8222-222222222222',
+            user_id: userId,
+            total_amount: '30.00',
+            status: 'completed',
+            created_at: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+        rowCount: 2,
+      };
+    }
+
+    if (sql.includes('FROM order_items')) {
+      return {
+        rows: [
+          {
+            id: 'item-1',
+            order_id: '33333333-3333-4333-8333-333333333333',
+            book_id: 'One Piece::2',
+            title: 'One Piece',
+            unit_price: '30.00',
+            quantity: 2,
+            line_total: '60.00',
+          },
+          {
+            id: 'item-2',
+            order_id: '22222222-2222-4222-8222-222222222222',
+            book_id: 'One Piece::1',
+            title: 'One Piece',
+            unit_price: '30.00',
+            quantity: 1,
+            line_total: '30.00',
+          },
+        ],
+        rowCount: 2,
+      };
+    }
+
+    throw new Error(`Unexpected SQL: ${sql}`);
+  });
+
+  await withServer(async (port) => {
+    const response = await fetch(`http://127.0.0.1:${port}/resources/api_orders.php?user_id=someone-else`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    assert.equal(response.status, 200);
+    const payload = await response.json();
+    assert.equal(payload.length, 2);
+    assert.equal(payload[0].id, '33333333-3333-4333-8333-333333333333');
+    assert.equal(payload[0].purchase_date, '2026-01-02T00:00:00.000Z');
+    assert.equal(payload[0].items.length, 1);
+    assert.equal(payload[1].id, '22222222-2222-4222-8222-222222222222');
+    assert.equal(payload[1].items.length, 1);
+  });
+
+  assert.equal(calls[0].params[0], userId);
+  assert.ok(calls[0].sql.includes('ORDER BY created_at DESC'));
+});
+
 test('reset password template shows success before logged-out warning after password change', () => {
   const resetComponentPath = path.join(__dirname, '..', '..', 'js', 'components', 'app-reset-password.js');
   const source = fs.readFileSync(resetComponentPath, 'utf8');
