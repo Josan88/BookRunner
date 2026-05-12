@@ -138,10 +138,7 @@ const Book = {
     },
 
     addToCart() {
-      const apiBaseUrl = (window.__APP_CONFIG__?.API_BASE_URL || "").replace(/\/$/, "");
-      const cartApiURL = apiBaseUrl
-        ? `${apiBaseUrl}/resources/api_cart.php`
-        : "resources/api_cart.php";
+      const cartApiURL = window.__APP_CONFIG__.getApiUrl("resources/api_cart.php");
       const token = this.authState?.user?.token;
       if (!this.authState?.isLoggedIn || !token) {
         this.$router.push("/login");

@@ -50,10 +50,7 @@ const Cart = {
     },
 
     fetchCart() {
-      const apiBaseUrl = (window.__APP_CONFIG__?.API_BASE_URL || "").replace(/\/$/, "");
-      const cartApiURL = apiBaseUrl
-        ? `${apiBaseUrl}/resources/api_cart.php`
-        : "resources/api_cart.php";
+      const cartApiURL = window.__APP_CONFIG__.getApiUrl("resources/api_cart.php");
       const token = this.authState.user?.token;
       if (this.authState.isLoggedIn && token) {
         fetch(cartApiURL, {
@@ -104,10 +101,7 @@ const Cart = {
     },
 
     removeFromCart(id) {
-      const apiBaseUrl = (window.__APP_CONFIG__?.API_BASE_URL || "").replace(/\/$/, "");
-      const cartItemApiURL = apiBaseUrl
-        ? `${apiBaseUrl}/resources/api_cart.php/${id}`
-        : `resources/api_cart.php/${id}`;
+      const cartItemApiURL = window.__APP_CONFIG__.getApiUrl(`resources/api_cart.php/${id}`);
       const token = this.authState.user?.token;
       if (!token) {
         return;
@@ -139,10 +133,7 @@ const Cart = {
     },
 
     updateQuantity(item) {
-      const apiBaseUrl = (window.__APP_CONFIG__?.API_BASE_URL || "").replace(/\/$/, "");
-      const cartItemApiURL = apiBaseUrl
-        ? `${apiBaseUrl}/resources/api_cart.php/${item.id}`
-        : `resources/api_cart.php/${item.id}`;
+      const cartItemApiURL = window.__APP_CONFIG__.getApiUrl(`resources/api_cart.php/${item.id}`);
       const token = this.authState.user?.token;
       if (!token) {
         return;
@@ -189,10 +180,7 @@ const Cart = {
     },
 
     purchaseCart() {
-      const apiBaseUrl = (window.__APP_CONFIG__?.API_BASE_URL || "").replace(/\/$/, "");
-      const ordersApiURL = apiBaseUrl
-        ? `${apiBaseUrl}/resources/api_orders.php`
-        : "resources/api_orders.php";
+      const ordersApiURL = window.__APP_CONFIG__.getApiUrl("resources/api_orders.php");
       const token = this.authState.user?.token;
 
       if (!this.authState.isLoggedIn || !token) {

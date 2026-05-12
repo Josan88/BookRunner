@@ -34,10 +34,7 @@ const Purchase = {
 
   methods: {
     fetchPurchases() {
-      const apiBaseUrl = (window.__APP_CONFIG__?.API_BASE_URL || "").replace(/\/$/, "");
-      const ordersApiURL = apiBaseUrl
-        ? `${apiBaseUrl}/resources/api_orders.php`
-        : "resources/api_orders.php";
+      const ordersApiURL = window.__APP_CONFIG__.getApiUrl("resources/api_orders.php");
       const token = this.authState.user?.token;
       if (this.authState.isLoggedIn && token) {
         fetch(ordersApiURL, {
