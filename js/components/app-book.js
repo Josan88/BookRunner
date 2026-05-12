@@ -138,13 +138,14 @@ const Book = {
     },
 
     addToCart() {
+      const cartApiURL = window.__APP_CONFIG__.getApiUrl("resources/api_cart.php");
       const token = this.authState?.user?.token;
       if (!this.authState?.isLoggedIn || !token) {
         this.$router.push("/login");
         return;
       }
 
-      fetch("resources/api_cart.php", {
+      fetch(cartApiURL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

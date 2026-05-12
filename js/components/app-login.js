@@ -13,7 +13,7 @@ const Login = {
 
   methods: {
     login() {
-      const postSQLApiURL = "resources/api_user.php";
+      const postSQLApiURL = window.__APP_CONFIG__.getApiUrl("resources/api_user.php");
 
       if (this.$refs.form.validate()) {
         fetch(postSQLApiURL, {

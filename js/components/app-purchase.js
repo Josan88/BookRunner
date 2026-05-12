@@ -34,9 +34,10 @@ const Purchase = {
 
   methods: {
     fetchPurchases() {
+      const ordersApiURL = window.__APP_CONFIG__.getApiUrl("resources/api_orders.php");
       const token = this.authState.user?.token;
       if (this.authState.isLoggedIn && token) {
-        fetch("resources/api_orders.php", {
+        fetch(ordersApiURL, {
           headers: { Authorization: `Bearer ${token}` },
         })
           .then((res) => res.json())

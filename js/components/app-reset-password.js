@@ -32,13 +32,14 @@ const Reset = {
 
       const userId = this.authState.user?.id;
       const token = this.authState.user?.token;
+      const userApiURL = window.__APP_CONFIG__.getApiUrl(`resources/api_user.php/id/${userId}`);
 
       if (!this.authState.isLoggedIn || !userId || !token) {
         this.msg = "You must be logged in to reset your password.";
         return;
       }
 
-      fetch(`resources/api_user.php/id/${userId}`, {
+      fetch(userApiURL, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

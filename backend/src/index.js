@@ -10,6 +10,9 @@ const orderRoutes = require('./routes/orders');
 const app = express();
 const DEFAULT_PORT = 3000;
 const MAX_PORT = 65535;
+const CORS_METHODS = 'GET,POST,PUT,DELETE,OPTIONS';
+const CORS_HEADERS = 'Authorization,Content-Type';
+const CORS_MAX_AGE_SECONDS = '600';
 
 const resolvePort = (rawPort) => {
   if (rawPort === undefined) {
@@ -29,8 +32,64 @@ const resolvePort = (rawPort) => {
   return parsedPort;
 };
 
+const resolveAllowedOrigins = (rawOrigins) => {
+  if (!rawOrigins) {
+    return new Set();
+  }
+
+  const isValidAllowedOrigin = (origin) => {
+    try {
+      const parsed = new URL(origin);
+      if (!['http:', 'https:'].includes(parsed.protocol)) {
+        return false;
+      }
+      return parsed.origin === origin;
+    } catch {
+      return false;
+    }
+  };
+
+  return new Set(
+    rawOrigins
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter((origin) => origin !== '' && origin !== '*' && isValidAllowedOrigin(origin)),
+  );
+};
+
 const PORT = resolvePort(process.env.PORT);
 const HOST = process.env.HOST || '0.0.0.0';
+const allowedOrigins = resolveAllowedOrigins(process.env.FRONTEND_ORIGIN);
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (!origin) {
+    return next();
+  }
+
+  const isPreflightRequest =
+    req.method === 'OPTIONS' && !!req.headers['access-control-request-method'];
+  const isAllowedOrigin = allowedOrigins.has(origin);
+
+  if (!isAllowedOrigin) {
+    if (isPreflightRequest) {
+      return res.sendStatus(403);
+    }
+    return next();
+  }
+
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Vary', 'Origin');
+
+  if (isPreflightRequest) {
+    res.setHeader('Access-Control-Allow-Methods', CORS_METHODS);
+    res.setHeader('Access-Control-Allow-Headers', CORS_HEADERS);
+    res.setHeader('Access-Control-Max-Age', CORS_MAX_AGE_SECONDS);
+    return res.sendStatus(204);
+  }
+
+  return next();
+});
 
 app.use(express.json());
 
