@@ -2,6 +2,7 @@
 
 // Set JWT_SECRET before loading the app so token signing works in tests
 process.env.JWT_SECRET = 'test-secret-for-unit-tests';
+process.env.FRONTEND_ORIGIN = 'http://localhost:8080, https://frontend.example.com';
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -47,6 +48,57 @@ test('GET /health returns status ok', async () => {
 
     assert.equal(response.status, 200);
     assert.deepEqual(payload, { status: 'ok' });
+  });
+});
+
+test('GET /health sets CORS headers for allowed origin', async () => {
+  await withServer(async (port) => {
+    const response = await fetch(`http://127.0.0.1:${port}/health`, {
+      headers: { Origin: 'http://localhost:8080' },
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('access-control-allow-origin'), 'http://localhost:8080');
+    assert.match(response.headers.get('access-control-allow-headers') || '', /Authorization/i);
+    assert.match(response.headers.get('access-control-allow-headers') || '', /Content-Type/i);
+    assert.equal(response.headers.get('vary'), 'Origin');
+  });
+});
+
+test('OPTIONS preflight allows configured origin and auth/content-type headers', async () => {
+  await withServer(async (port) => {
+    const response = await fetch(`http://127.0.0.1:${port}/resources/api_user.php`, {
+      method: 'OPTIONS',
+      headers: {
+        Origin: 'https://frontend.example.com',
+        'Access-Control-Request-Method': 'POST',
+        'Access-Control-Request-Headers': 'authorization,content-type',
+      },
+    });
+
+    assert.equal(response.status, 204);
+    assert.equal(response.headers.get('access-control-allow-origin'), 'https://frontend.example.com');
+    assert.equal(
+      response.headers.get('access-control-allow-methods'),
+      'GET,POST,PUT,DELETE,OPTIONS',
+    );
+    assert.match(response.headers.get('access-control-allow-headers') || '', /Authorization/i);
+    assert.match(response.headers.get('access-control-allow-headers') || '', /Content-Type/i);
+  });
+});
+
+test('OPTIONS preflight rejects disallowed origins', async () => {
+  await withServer(async (port) => {
+    const response = await fetch(`http://127.0.0.1:${port}/resources/api_user.php`, {
+      method: 'OPTIONS',
+      headers: {
+        Origin: 'https://malicious.example.com',
+        'Access-Control-Request-Method': 'POST',
+      },
+    });
+
+    assert.equal(response.status, 403);
+    assert.equal(response.headers.get('access-control-allow-origin'), null);
   });
 });
 

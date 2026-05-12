@@ -28,6 +28,7 @@ services:
       PORT: 3000
       DATABASE_URL: ${DATABASE_URL:-postgresql://bookrunner:bookrunner@db:5432/bookrunner}
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set – see .env.example}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-}
     depends_on:
       db:
         condition: service_healthy

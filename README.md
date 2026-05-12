@@ -42,6 +42,14 @@ Frontend API calls read `window.__APP_CONFIG__.API_BASE_URL` from `js/config.js`
 - Staging: set `API_BASE_URL` to your staging backend URL.
 - Production: set `API_BASE_URL` to your production backend URL.
 
+When `API_BASE_URL` is absolute (cross-origin), set backend `FRONTEND_ORIGIN` to an allowlist of frontend origins (comma-separated) so browser CORS preflight requests succeed for `Authorization` and `Content-Type` headers.
+
+Example:
+
+```env
+FRONTEND_ORIGIN=http://localhost:8080,https://staging-frontend.example.com,https://frontend.example.com
+```
+
 Example override (load this before `js/config.js`):
 
 ```html
