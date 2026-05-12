@@ -49,8 +49,16 @@ router.get('/resources/api_orders.php', ordersLimiter, requireAuth, asyncHandler
   );
 
   const itemsByOrderId = itemsResult.rows.reduce((grouped, item) => {
+    const bookIdParts = String(item.book_id || '').split('::');
+
     grouped[item.order_id] = grouped[item.order_id] || [];
-    grouped[item.order_id].push(item);
+    grouped[item.order_id].push({
+      ...item,
+      book_title: item.title,
+      volume: bookIdParts.length > 1 ? bookIdParts[1] : null,
+      price: item.unit_price,
+      cover: null,
+    });
     return grouped;
   }, {});
 

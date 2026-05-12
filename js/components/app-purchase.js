@@ -34,8 +34,11 @@ const Purchase = {
 
   methods: {
     fetchPurchases() {
-      if (this.authState.isLoggedIn && this.authState.user?.id) {
-        fetch(`resources/api_orders.php?user_id=${this.authState.user.id}`)
+      const token = this.authState.user?.token;
+      if (this.authState.isLoggedIn && token) {
+        fetch("resources/api_orders.php", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
           .then((res) => res.json())
           .then((data) => {
             this.orders = Array.isArray(data?.data)

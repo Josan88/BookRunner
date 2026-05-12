@@ -966,6 +966,9 @@ test('GET /resources/api_orders.php returns authenticated user purchase history 
     assert.equal(payload.data[0].id, '33333333-3333-4333-8333-333333333333');
     assert.equal(payload.data[0].purchase_date, '2026-01-02T00:00:00.000Z');
     assert.equal(payload.data[0].items.length, 1);
+    assert.equal(payload.data[0].items[0].book_title, 'One Piece');
+    assert.equal(payload.data[0].items[0].volume, '2');
+    assert.equal(payload.data[0].items[0].price, '30.00');
     assert.equal(payload.data[1].id, '22222222-2222-4222-8222-222222222222');
     assert.equal(payload.data[1].items.length, 1);
   });
