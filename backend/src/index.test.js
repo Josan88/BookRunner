@@ -59,8 +59,6 @@ test('GET /health sets CORS headers for allowed origin', async () => {
 
     assert.equal(response.status, 200);
     assert.equal(response.headers.get('access-control-allow-origin'), 'http://localhost:8080');
-    assert.match(response.headers.get('access-control-allow-headers') || '', /Authorization/i);
-    assert.match(response.headers.get('access-control-allow-headers') || '', /Content-Type/i);
     assert.equal(response.headers.get('vary'), 'Origin');
   });
 });
@@ -84,6 +82,7 @@ test('OPTIONS preflight allows configured origin and auth/content-type headers',
     );
     assert.match(response.headers.get('access-control-allow-headers') || '', /Authorization/i);
     assert.match(response.headers.get('access-control-allow-headers') || '', /Content-Type/i);
+    assert.equal(response.headers.get('access-control-max-age'), '600');
   });
 });
 
