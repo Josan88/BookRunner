@@ -6,6 +6,7 @@ const db = require('../db');
 const { asyncHandler, requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
+const BOOK_ID_DELIMITER = '::';
 const ordersLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 50,
@@ -24,6 +25,11 @@ function normalizeCartItemIds(values) {
       .map((value) => String(value ?? '').trim())
       .filter((value) => value.length > 0),
   )];
+}
+
+function extractBookVolume(bookId) {
+  const parts = String(bookId || '').split(BOOK_ID_DELIMITER);
+  return parts[1] || null;
 }
 
 router.get('/resources/api_orders.php', ordersLimiter, requireAuth, asyncHandler(async (req, res) => {
@@ -49,15 +55,12 @@ router.get('/resources/api_orders.php', ordersLimiter, requireAuth, asyncHandler
   );
 
   const itemsByOrderId = itemsResult.rows.reduce((grouped, item) => {
-    const bookIdParts = String(item.book_id || '').split('::');
-
     grouped[item.order_id] = grouped[item.order_id] || [];
     grouped[item.order_id].push({
       ...item,
       book_title: item.title,
-      volume: bookIdParts.length > 1 ? bookIdParts[1] : null,
+      volume: extractBookVolume(item.book_id),
       price: item.unit_price,
-      cover: null,
     });
     return grouped;
   }, {});
