@@ -33,6 +33,23 @@ All published ports are loopback-only (`127.0.0.1`) for local development.
 
 The frontend is served by nginx and API requests are proxied to the Express backend.
 
+## Frontend API base URL configuration
+
+Frontend API calls read `window.__APP_CONFIG__.API_BASE_URL` from `js/config.js`.
+
+- Default: `''` (empty string) → uses relative API paths such as `resources/api_user.php` (Docker/nginx proxy flow).
+- Local frontend + local backend: set `API_BASE_URL` to `http://localhost:3000`.
+- Staging: set `API_BASE_URL` to your staging backend URL.
+- Production: set `API_BASE_URL` to your production backend URL.
+
+Example override (load this before `js/config.js`):
+
+```html
+<script>
+  window.__APP_CONFIG__ = { API_BASE_URL: "http://localhost:3000" };
+</script>
+```
+
 ## Current Scope
 
 This Docker stack establishes the PostgreSQL-backed local application:

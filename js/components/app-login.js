@@ -13,7 +13,10 @@ const Login = {
 
   methods: {
     login() {
-      const postSQLApiURL = "resources/api_user.php";
+      const apiBaseUrl = (window.__APP_CONFIG__?.API_BASE_URL || "").replace(/\/$/, "");
+      const postSQLApiURL = apiBaseUrl
+        ? `${apiBaseUrl}/resources/api_user.php`
+        : "resources/api_user.php";
 
       if (this.$refs.form.validate()) {
         fetch(postSQLApiURL, {

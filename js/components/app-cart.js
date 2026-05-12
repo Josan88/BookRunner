@@ -50,9 +50,13 @@ const Cart = {
     },
 
     fetchCart() {
+      const apiBaseUrl = (window.__APP_CONFIG__?.API_BASE_URL || "").replace(/\/$/, "");
+      const cartApiURL = apiBaseUrl
+        ? `${apiBaseUrl}/resources/api_cart.php`
+        : "resources/api_cart.php";
       const token = this.authState.user?.token;
       if (this.authState.isLoggedIn && token) {
-        fetch("resources/api_cart.php", {
+        fetch(cartApiURL, {
           headers: { Authorization: `Bearer ${token}` },
         })
           .then(async (res) => {
@@ -100,12 +104,16 @@ const Cart = {
     },
 
     removeFromCart(id) {
+      const apiBaseUrl = (window.__APP_CONFIG__?.API_BASE_URL || "").replace(/\/$/, "");
+      const cartItemApiURL = apiBaseUrl
+        ? `${apiBaseUrl}/resources/api_cart.php/${id}`
+        : `resources/api_cart.php/${id}`;
       const token = this.authState.user?.token;
       if (!token) {
         return;
       }
 
-      fetch(`resources/api_cart.php/${id}`, {
+      fetch(cartItemApiURL, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -131,12 +139,16 @@ const Cart = {
     },
 
     updateQuantity(item) {
+      const apiBaseUrl = (window.__APP_CONFIG__?.API_BASE_URL || "").replace(/\/$/, "");
+      const cartItemApiURL = apiBaseUrl
+        ? `${apiBaseUrl}/resources/api_cart.php/${item.id}`
+        : `resources/api_cart.php/${item.id}`;
       const token = this.authState.user?.token;
       if (!token) {
         return;
       }
 
-      fetch(`resources/api_cart.php/${item.id}`, {
+      fetch(cartItemApiURL, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -177,6 +189,10 @@ const Cart = {
     },
 
     purchaseCart() {
+      const apiBaseUrl = (window.__APP_CONFIG__?.API_BASE_URL || "").replace(/\/$/, "");
+      const ordersApiURL = apiBaseUrl
+        ? `${apiBaseUrl}/resources/api_orders.php`
+        : "resources/api_orders.php";
       const token = this.authState.user?.token;
 
       if (!this.authState.isLoggedIn || !token) {
@@ -190,7 +206,7 @@ const Cart = {
 
       const cartItemIds = this.selectedItems.map(({ id }) => id);
 
-      fetch("resources/api_orders.php", {
+      fetch(ordersApiURL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
