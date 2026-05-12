@@ -208,7 +208,7 @@ const Cart = {
             return;
           }
 
-          if (res.ok && data?.id) {
+          if (res.ok && data?.success && data?.data?.id) {
             this.fetchCart();
           } else {
             alert("Failed to complete purchase.");

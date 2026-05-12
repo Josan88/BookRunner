@@ -6,6 +6,7 @@ const db = require('../db');
 const { asyncHandler, requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
+const BOOK_ID_DELIMITER = '::';
 const ordersLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 50,
@@ -25,6 +26,53 @@ function normalizeCartItemIds(values) {
       .filter((value) => value.length > 0),
   )];
 }
+
+function extractBookVolume(bookId) {
+  const parts = String(bookId || '').split(BOOK_ID_DELIMITER);
+  return parts[1] || null;
+}
+
+router.get('/resources/api_orders.php', ordersLimiter, requireAuth, asyncHandler(async (req, res) => {
+  const ordersResult = await db.query(
+    `SELECT id, user_id, total_amount, status, created_at
+     FROM orders
+     WHERE user_id = $1
+     ORDER BY created_at DESC`,
+    [req.user.sub],
+  );
+
+  if (ordersResult.rows.length === 0) {
+    return res.status(200).json({ success: true, data: [] });
+  }
+
+  const orderIds = ordersResult.rows.map((order) => order.id);
+  const itemsResult = await db.query(
+    `SELECT id, order_id, book_id, title, unit_price, quantity, line_total
+     FROM order_items
+     WHERE order_id = ANY($1::uuid[])
+     ORDER BY id ASC`,
+    [orderIds],
+  );
+
+  const itemsByOrderId = itemsResult.rows.reduce((grouped, item) => {
+    grouped[item.order_id] = grouped[item.order_id] || [];
+    grouped[item.order_id].push({
+      ...item,
+      book_title: item.title,
+      volume: extractBookVolume(item.book_id),
+      price: item.unit_price,
+    });
+    return grouped;
+  }, {});
+
+  const payload = ordersResult.rows.map((order) => ({
+    ...order,
+    purchase_date: order.created_at,
+    items: itemsByOrderId[order.id] || [],
+  }));
+
+  return res.status(200).json({ success: true, data: payload });
+}));
 
 router.post('/resources/api_orders.php', ordersLimiter, requireAuth, asyncHandler(async (req, res) => {
   const cartItemIds = normalizeCartItemIds(req.body?.cart_item_ids);
@@ -77,7 +125,7 @@ router.post('/resources/api_orders.php', ordersLimiter, requireAuth, asyncHandle
     );
 
     await db.query('COMMIT');
-    return res.status(201).json({ id: orderId });
+    return res.status(201).json({ success: true, data: { id: orderId } });
   } catch (error) {
     await db.query('ROLLBACK');
     throw error;

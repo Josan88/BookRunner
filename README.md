@@ -38,15 +38,11 @@ The frontend is served by nginx and API requests are proxied to the Express back
 This Docker stack establishes the PostgreSQL-backed local application:
 
 - Frontend container builds and serves static assets
-- Express backend boots, responds on `/health`, and serves the auth/profile/cart API plus authenticated checkout
+- Express backend boots, responds on `/health`, and serves the auth/profile/cart API plus authenticated checkout and purchase history
 - PostgreSQL service starts, becomes healthy, and runs `bookrunner.sql` when the data volume is first initialized
 - Backend receives `DATABASE_URL` and `JWT_SECRET` for PostgreSQL-backed auth
 
-**Backend order history data access is not yet implemented** and is tracked in:
-
-- #7 (orders)
-
-`DATABASE_URL` is wired into the backend service environment so those issues can connect immediately without further Docker changes.
+`DATABASE_URL` is wired into the backend service environment for PostgreSQL-backed auth/profile/cart/orders flows.
 
 ## Local verification
 
@@ -67,7 +63,7 @@ Expected results:
 - Frontend is accessible at `http://localhost:8080`
 - Backend health is accessible at `http://localhost:3000/health` and via proxy at `http://localhost:8080/health`
 
-> **Note:** PostgreSQL starts and initializes the schema, and auth/profile/cart routes plus authenticated checkout are connected. Order history access remains tracked separately in #7.
+> **Note:** PostgreSQL starts and initializes the schema, and auth/profile/cart/orders routes are connected.
 
 > **Schema reset:** PostgreSQL init scripts only run when the data volume is empty. If `bookrunner.sql` changes, run `docker compose down -v` before starting the stack again to force a fresh schema initialization.
 
@@ -157,7 +153,7 @@ npm start
 
 The API will be available at `http://localhost:3000` by default.
 
-`DATABASE_URL` is available for PostgreSQL-backed endpoints. The current backend serves `/health`, auth/profile, cart, and authenticated checkout APIs; order history access remains tracked separately in #7.
+`DATABASE_URL` is available for PostgreSQL-backed endpoints. The current backend serves `/health`, auth/profile, cart, checkout, and purchase history APIs.
 
 ### Health check
 

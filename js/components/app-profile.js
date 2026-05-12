@@ -33,18 +33,20 @@ const Profile = {
     },
 
     fetchRecentPurchases() {
-      const userId = this.authState.user?.id;
-      if (this.authState.isLoggedIn && userId) {
-        fetch(`resources/api_orders.php?user_id=${userId}`)
+      const token = this.authState.user?.token;
+      if (this.authState.isLoggedIn && token) {
+        fetch("resources/api_orders.php", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
           .then(res => res.json())
           .then(data => {
-            if (Array.isArray(data)) {
-              this.recentPurchases = data
-                .sort((a, b) => new Date(b.purchase_date) - new Date(a.purchase_date))
-                .slice(0, 3);
-            } else {
-              this.recentPurchases = [];
-            }
+            const purchases = Array.isArray(data?.data)
+              ? data.data
+              : (Array.isArray(data) ? data : []);
+
+            this.recentPurchases = purchases
+              .sort((a, b) => new Date(b.purchase_date) - new Date(a.purchase_date))
+              .slice(0, 3);
           });
       }
     },
