@@ -539,7 +539,7 @@ test('POST /api/users logs in and returns a JWT', async (t) => {
   const bcrypt = require('bcryptjs');
   const hash = await bcrypt.hash('correctpassword', 4); // low rounds for speed
 
-  t.mock.method(db, 'queryRead', async () => ({
+  t.mock.method(db, 'query', async () => ({
     rows: [{ id: 'user-uuid-1', name: 'Alice', email: 'alice@example.com', password_hash: hash }],
   }));
 
@@ -568,7 +568,7 @@ test('POST /api/users returns 401 for wrong password', async (t) => {
   const bcrypt = require('bcryptjs');
   const hash = await bcrypt.hash('correctpassword', 4);
 
-  t.mock.method(db, 'queryRead', async () => ({
+  t.mock.method(db, 'query', async () => ({
     rows: [{ id: 'user-uuid-1', name: 'Alice', email: 'alice@example.com', password_hash: hash }],
   }));
 
@@ -586,7 +586,7 @@ test('POST /api/users returns 401 for wrong password', async (t) => {
 });
 
 test('POST /api/users returns 401 when user not found', async (t) => {
-  t.mock.method(db, 'queryRead', async () => ({ rows: [] }));
+  t.mock.method(db, 'query', async () => ({ rows: [] }));
 
   await withServer(async (port) => {
     const response = await fetch(
@@ -665,7 +665,7 @@ test('GET /api/users/id/:id returns 200 with own profile', async (t) => {
   const userId = 'user-uuid-1';
   const token = makeToken(userId);
 
-  t.mock.method(db, 'queryRead', async () => ({
+  t.mock.method(db, 'query', async () => ({
     rows: [{ id: userId, name: 'Alice', email: 'alice@example.com', created_at: new Date().toISOString() }],
   }));
 
@@ -685,7 +685,7 @@ test('GET /api/users/id/:id returns 404 when user not found', async (t) => {
   const userId = 'user-uuid-1';
   const token = makeToken(userId);
 
-  t.mock.method(db, 'queryRead', async () => ({ rows: [] }));
+  t.mock.method(db, 'query', async () => ({ rows: [] }));
 
   await withServer(async (port) => {
     const response = await fetch(
@@ -876,7 +876,7 @@ test('GET /api/cart returns only the authenticated user cart', async (t) => {
   const token = makeToken(userId);
   const calls = [];
 
-  t.mock.method(db, 'queryRead', async (sql, params) => {
+  t.mock.method(db, 'query', async (sql, params) => {
     calls.push({ sql, params });
     return {
       rows: [{
@@ -1543,45 +1543,48 @@ test('POST /api/orders creates an order from owned cart items only', async (t) =
   const cartItemId = '11111111-1111-4111-8111-111111111111';
   const calls = [];
 
-  t.mock.method(db, 'query', async (sql, params) => {
-    calls.push({ sql, params });
+  t.mock.method(db, 'connect', async () => ({
+    query: async (sql, params) => {
+      calls.push({ sql, params });
 
-    if (sql === 'BEGIN' || sql === 'COMMIT') {
-      return { rows: [], rowCount: null };
-    }
+      if (sql === 'BEGIN' || sql === 'COMMIT') {
+        return { rows: [], rowCount: null };
+      }
 
-    if (sql.includes('FROM cart_items')) {
-      return {
-        rows: [{
-          id: cartItemId,
-          book_id: 'One Piece::1',
-          title: 'One Piece',
-          volume: '1',
-          cover: 'images/one_piece_vol_1.jpg',
-          unit_price: '30.00',
-          quantity: 2,
-        }],
-        rowCount: 1,
-      };
-    }
+      if (sql.includes('FROM cart_items')) {
+        return {
+          rows: [{
+            id: cartItemId,
+            book_id: 'One Piece::1',
+            title: 'One Piece',
+            volume: '1',
+            cover: 'images/one_piece_vol_1.jpg',
+            unit_price: '30.00',
+            quantity: 2,
+          }],
+          rowCount: 1,
+        };
+      }
 
-    if (sql.includes('INSERT INTO orders')) {
-      return {
-        rows: [{ id: '22222222-2222-4222-8222-222222222222' }],
-        rowCount: 1,
-      };
-    }
+      if (sql.includes('INSERT INTO orders')) {
+        return {
+          rows: [{ id: '22222222-2222-4222-8222-222222222222' }],
+          rowCount: 1,
+        };
+      }
 
-    if (sql.includes('INSERT INTO order_items')) {
-      return { rows: [], rowCount: 1 };
-    }
+      if (sql.includes('INSERT INTO order_items')) {
+        return { rows: [], rowCount: 1 };
+      }
 
-    if (sql.includes('DELETE FROM cart_items')) {
-      return { rows: [], rowCount: 1 };
-    }
+      if (sql.includes('DELETE FROM cart_items')) {
+        return { rows: [], rowCount: 1 };
+      }
 
-    throw new Error(`Unexpected SQL: ${sql}`);
-  });
+      throw new Error(`Unexpected SQL: ${sql}`);
+    },
+    release: () => {},
+  }));
 
   await withServer(async (port) => {
     const response = await fetch(`http://127.0.0.1:${port}/api/orders`, {
@@ -1619,19 +1622,22 @@ test('POST /api/orders returns 404 when any cart item is not owned by the user',
   const cartItemId = '11111111-1111-4111-8111-111111111111';
   const calls = [];
 
-  t.mock.method(db, 'query', async (sql, params) => {
-    calls.push({ sql, params });
+  t.mock.method(db, 'connect', async () => ({
+    query: async (sql, params) => {
+      calls.push({ sql, params });
 
-    if (sql === 'BEGIN' || sql === 'ROLLBACK') {
-      return { rows: [], rowCount: null };
-    }
+      if (sql === 'BEGIN' || sql === 'ROLLBACK') {
+        return { rows: [], rowCount: null };
+      }
 
-    if (sql.includes('FROM cart_items')) {
-      return { rows: [], rowCount: 0 };
-    }
+      if (sql.includes('FROM cart_items')) {
+        return { rows: [], rowCount: 0 };
+      }
 
-    throw new Error(`Unexpected SQL: ${sql}`);
-  });
+      throw new Error(`Unexpected SQL: ${sql}`);
+    },
+    release: () => {},
+  }));
 
   await withServer(async (port) => {
     const response = await fetch(`http://127.0.0.1:${port}/api/orders`, {
@@ -1655,40 +1661,43 @@ test('POST /api/orders rolls back and returns 500 when inserting order items fai
   const cartItemId = '11111111-1111-4111-8111-111111111111';
   const calls = [];
 
-  t.mock.method(db, 'query', async (sql, params) => {
-    calls.push({ sql, params });
+  t.mock.method(db, 'connect', async () => ({
+    query: async (sql, params) => {
+      calls.push({ sql, params });
 
-    if (sql === 'BEGIN' || sql === 'ROLLBACK') {
-      return { rows: [], rowCount: null };
-    }
+      if (sql === 'BEGIN' || sql === 'ROLLBACK') {
+        return { rows: [], rowCount: null };
+      }
 
-    if (sql.includes('FROM cart_items')) {
-      return {
-        rows: [{
-          id: cartItemId,
-          book_id: 'One Piece::1',
-          title: 'One Piece',
-          cover: 'images/one_piece_vol_1.jpg',
-          unit_price: '30.00',
-          quantity: 1,
-        }],
-        rowCount: 1,
-      };
-    }
+      if (sql.includes('FROM cart_items')) {
+        return {
+          rows: [{
+            id: cartItemId,
+            book_id: 'One Piece::1',
+            title: 'One Piece',
+            cover: 'images/one_piece_vol_1.jpg',
+            unit_price: '30.00',
+            quantity: 1,
+          }],
+          rowCount: 1,
+        };
+      }
 
-    if (sql.includes('INSERT INTO orders')) {
-      return {
-        rows: [{ id: '22222222-2222-4222-8222-222222222222' }],
-        rowCount: 1,
-      };
-    }
+      if (sql.includes('INSERT INTO orders')) {
+        return {
+          rows: [{ id: '22222222-2222-4222-8222-222222222222' }],
+          rowCount: 1,
+        };
+      }
 
-    if (sql.includes('INSERT INTO order_items')) {
-      throw new Error('order_items insert failed');
-    }
+      if (sql.includes('INSERT INTO order_items')) {
+        throw new Error('order_items insert failed');
+      }
 
-    throw new Error(`Unexpected SQL: ${sql}`);
-  });
+      throw new Error(`Unexpected SQL: ${sql}`);
+    },
+    release: () => {},
+  }));
 
   await withServer(async (port) => {
     const response = await fetch(`http://127.0.0.1:${port}/api/orders`, {
@@ -1714,7 +1723,7 @@ test('GET /api/orders returns authenticated user purchase history ordered by pur
   const token = makeToken(userId);
   const calls = [];
 
-  t.mock.method(db, 'queryRead', async (sql, params) => {
+  t.mock.method(db, 'query', async (sql, params) => {
     calls.push({ sql, params });
 
     if (sql.includes('FROM orders')) {

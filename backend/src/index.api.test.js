@@ -50,7 +50,7 @@ describe('Jest + Supertest API smoke flows', () => {
     const password = 'Passw0rd!';
     const passwordHash = await bcrypt.hash(password, 12);
 
-    jest.spyOn(db, 'queryRead').mockResolvedValue({
+    jest.spyOn(db, 'query').mockResolvedValue({
       rows: [{ id: 'user-1', name: 'Tester', email: 'tester@example.com', password_hash: passwordHash }],
     });
 
@@ -69,7 +69,7 @@ describe('Jest + Supertest API smoke flows', () => {
 
   test('GET /api/cart returns authenticated user cart rows', async () => {
     const token = makeToken('user-1');
-    jest.spyOn(db, 'queryRead').mockResolvedValue({
+    jest.spyOn(db, 'query').mockResolvedValue({
       rows: [{ id: 'cart-1', book_title: 'One Piece', quantity: 1, price: '25.00' }],
     });
 
@@ -83,34 +83,38 @@ describe('Jest + Supertest API smoke flows', () => {
 
   test('POST /api/orders creates an order from cart items', async () => {
     const token = makeToken('user-1');
-    const sequence = jest.spyOn(db, 'query').mockImplementation(async (sql) => {
-      if (sql === 'BEGIN' || sql === 'COMMIT') {
-        return { rows: [] };
-      }
-      if (sql.includes('FROM cart_items')) {
-        return {
-          rows: [{
-            id: '11111111-1111-4111-8111-111111111111',
-            book_id: 'one-piece::1',
-            title: 'One Piece',
-            volume: '1',
-            cover: 'cover.jpg',
-            unit_price: '25.00',
-            quantity: 2,
-          }],
-        };
-      }
-      if (sql.includes('INSERT INTO orders')) {
-        return { rows: [{ id: '22222222-2222-4222-8222-222222222222' }] };
-      }
-      if (sql.includes('INSERT INTO order_items')) {
-        return { rows: [] };
-      }
-      if (sql.includes('DELETE FROM cart_items')) {
-        return { rows: [], rowCount: 1 };
-      }
-      throw new Error(`Unexpected SQL: ${sql}`);
-    });
+    const client = {
+      query: jest.fn().mockImplementation(async (sql) => {
+        if (sql === 'BEGIN' || sql === 'COMMIT') {
+          return { rows: [] };
+        }
+        if (sql.includes('FROM cart_items')) {
+          return {
+            rows: [{
+              id: '11111111-1111-4111-8111-111111111111',
+              book_id: 'one-piece::1',
+              title: 'One Piece',
+              volume: '1',
+              cover: 'cover.jpg',
+              unit_price: '25.00',
+              quantity: 2,
+            }],
+          };
+        }
+        if (sql.includes('INSERT INTO orders')) {
+          return { rows: [{ id: '22222222-2222-4222-8222-222222222222' }] };
+        }
+        if (sql.includes('INSERT INTO order_items')) {
+          return { rows: [] };
+        }
+        if (sql.includes('DELETE FROM cart_items')) {
+          return { rows: [], rowCount: 1 };
+        }
+        throw new Error(`Unexpected SQL: ${sql}`);
+      }),
+      release: jest.fn(),
+    };
+    jest.spyOn(db, 'connect').mockResolvedValue(client);
 
     const response = await request(app)
       .post('/api/orders')
@@ -122,12 +126,14 @@ describe('Jest + Supertest API smoke flows', () => {
       success: true,
       data: { id: '22222222-2222-4222-8222-222222222222' },
     });
-    expect(sequence).toHaveBeenCalled();
+    expect(client.query).toHaveBeenCalledWith('BEGIN');
+    expect(client.query).toHaveBeenCalledWith('COMMIT');
+    expect(client.release).toHaveBeenCalled();
   });
 
   test('GET /api/orders returns purchase history wrapper payload', async () => {
     const token = makeToken('user-1');
-    const queryMock = jest.spyOn(db, 'queryRead').mockImplementation(async (sql) => {
+    const queryMock = jest.spyOn(db, 'query').mockImplementation(async (sql) => {
       if (sql.includes('FROM orders')) {
         return {
           rows: [{
