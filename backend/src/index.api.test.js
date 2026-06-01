@@ -50,7 +50,7 @@ describe('Jest + Supertest API smoke flows', () => {
     const password = 'Passw0rd!';
     const passwordHash = await bcrypt.hash(password, 12);
 
-    jest.spyOn(db, 'query').mockResolvedValue({
+    jest.spyOn(db, 'queryRead').mockResolvedValue({
       rows: [{ id: 'user-1', name: 'Tester', email: 'tester@example.com', password_hash: passwordHash }],
     });
 
@@ -69,7 +69,7 @@ describe('Jest + Supertest API smoke flows', () => {
 
   test('GET /api/cart returns authenticated user cart rows', async () => {
     const token = makeToken('user-1');
-    jest.spyOn(db, 'query').mockResolvedValue({
+    jest.spyOn(db, 'queryRead').mockResolvedValue({
       rows: [{ id: 'cart-1', book_title: 'One Piece', quantity: 1, price: '25.00' }],
     });
 
@@ -127,7 +127,7 @@ describe('Jest + Supertest API smoke flows', () => {
 
   test('GET /api/orders returns purchase history wrapper payload', async () => {
     const token = makeToken('user-1');
-    const queryMock = jest.spyOn(db, 'query').mockImplementation(async (sql) => {
+    const queryMock = jest.spyOn(db, 'queryRead').mockImplementation(async (sql) => {
       if (sql.includes('FROM orders')) {
         return {
           rows: [{
