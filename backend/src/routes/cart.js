@@ -38,7 +38,7 @@ function normalizeQuantity(value) {
 }
 
 router.get('/api/cart', cartLimiter, requireAuth, asyncHandler(async (req, res) => {
-  const result = await db.query(
+  const result = await db.queryRead(
     `WITH consolidated AS (
        SELECT
          (ARRAY_AGG(id ORDER BY created_at DESC, id DESC))[1] AS id,

@@ -173,7 +173,7 @@ test('startup migration logs error and rolls back transaction when migration fai
 });
 
 test('GET /api/books returns 200 when a row has null volume', async (t) => {
-  t.mock.method(db, 'query', async () => ({
+  t.mock.method(db, 'queryRead', async () => ({
     rows: [{
       book_id: 'book-1',
       title: 'Solo Leveling',
@@ -204,7 +204,7 @@ test('GET /api/books returns 200 when a row has null volume', async (t) => {
 });
 
 test('GET /api/books returns 200 when genre is an array', async (t) => {
-  t.mock.method(db, 'query', async () => ({
+  t.mock.method(db, 'queryRead', async () => ({
     rows: [{
       book_id: 'book-genre-array',
       title: 'Array Genre Book',
@@ -232,7 +232,7 @@ test('GET /api/books returns 200 when genre is an array', async (t) => {
 });
 
 test('GET /api/books returns 200 when keywords is an array', async (t) => {
-  t.mock.method(db, 'query', async () => ({
+  t.mock.method(db, 'queryRead', async () => ({
     rows: [{
       book_id: 'book-keywords-array',
       title: 'Array Keywords Book',
@@ -260,7 +260,7 @@ test('GET /api/books returns 200 when keywords is an array', async (t) => {
 });
 
 test('GET /api/books accepts X-Forwarded-For header', async (t) => {
-  t.mock.method(db, 'query', async () => ({
+  t.mock.method(db, 'queryRead', async () => ({
     rows: [{
       book_id: 'book-forwarded-for',
       title: 'Forwarded Header Book',
@@ -290,7 +290,7 @@ test('GET /api/books accepts X-Forwarded-For header', async (t) => {
 test('GET /api/books falls back to legacy query when newer books columns are missing', async (t) => {
   const calls = [];
 
-  t.mock.method(db, 'query', async (sql) => {
+  t.mock.method(db, 'queryRead', async (sql) => {
     calls.push(sql);
 
     if (calls.length === 1) {
@@ -339,7 +339,7 @@ test('GET /api/books falls back to legacy query when newer books columns are mis
 test('GET /api/books falls back to no-volume legacy query when volume is also missing', async (t) => {
   const calls = [];
 
-  t.mock.method(db, 'query', async (sql) => {
+  t.mock.method(db, 'queryRead', async (sql) => {
     calls.push(sql);
 
     if (calls.length <= 4) {
@@ -386,7 +386,7 @@ test('GET /api/books falls back to no-volume legacy query when volume is also mi
 test('GET /api/books falls back to no-cover legacy query when cover is missing', async (t) => {
   const calls = [];
 
-  t.mock.method(db, 'query', async (sql) => {
+  t.mock.method(db, 'queryRead', async (sql) => {
     calls.push(sql);
 
     if (calls.length <= 3) {
@@ -539,7 +539,7 @@ test('POST /api/users logs in and returns a JWT', async (t) => {
   const bcrypt = require('bcryptjs');
   const hash = await bcrypt.hash('correctpassword', 4); // low rounds for speed
 
-  t.mock.method(db, 'query', async () => ({
+  t.mock.method(db, 'queryRead', async () => ({
     rows: [{ id: 'user-uuid-1', name: 'Alice', email: 'alice@example.com', password_hash: hash }],
   }));
 
@@ -568,7 +568,7 @@ test('POST /api/users returns 401 for wrong password', async (t) => {
   const bcrypt = require('bcryptjs');
   const hash = await bcrypt.hash('correctpassword', 4);
 
-  t.mock.method(db, 'query', async () => ({
+  t.mock.method(db, 'queryRead', async () => ({
     rows: [{ id: 'user-uuid-1', name: 'Alice', email: 'alice@example.com', password_hash: hash }],
   }));
 
@@ -586,7 +586,7 @@ test('POST /api/users returns 401 for wrong password', async (t) => {
 });
 
 test('POST /api/users returns 401 when user not found', async (t) => {
-  t.mock.method(db, 'query', async () => ({ rows: [] }));
+  t.mock.method(db, 'queryRead', async () => ({ rows: [] }));
 
   await withServer(async (port) => {
     const response = await fetch(
@@ -665,7 +665,7 @@ test('GET /api/users/id/:id returns 200 with own profile', async (t) => {
   const userId = 'user-uuid-1';
   const token = makeToken(userId);
 
-  t.mock.method(db, 'query', async () => ({
+  t.mock.method(db, 'queryRead', async () => ({
     rows: [{ id: userId, name: 'Alice', email: 'alice@example.com', created_at: new Date().toISOString() }],
   }));
 
@@ -685,7 +685,7 @@ test('GET /api/users/id/:id returns 404 when user not found', async (t) => {
   const userId = 'user-uuid-1';
   const token = makeToken(userId);
 
-  t.mock.method(db, 'query', async () => ({ rows: [] }));
+  t.mock.method(db, 'queryRead', async () => ({ rows: [] }));
 
   await withServer(async (port) => {
     const response = await fetch(
@@ -876,7 +876,7 @@ test('GET /api/cart returns only the authenticated user cart', async (t) => {
   const token = makeToken(userId);
   const calls = [];
 
-  t.mock.method(db, 'query', async (sql, params) => {
+  t.mock.method(db, 'queryRead', async (sql, params) => {
     calls.push({ sql, params });
     return {
       rows: [{
@@ -925,7 +925,7 @@ test('POST /api/cart adds a cart item with server-derived catalog data', async (
   const catalogCalls = [];
   const writeCalls = [];
 
-  t.mock.method(db, 'query', async (sql, params) => {
+  t.mock.method(db, 'queryRead', async (sql, params) => {
     catalogCalls.push({ sql, params });
     if (/SELECT[\s\S]*FROM books/i.test(sql)) {
       return {
@@ -1019,7 +1019,7 @@ test('POST /api/cart returns 404 when catalog book_id is null', async (t) => {
   const userId = 'user-uuid-1';
   const token = makeToken(userId);
 
-  t.mock.method(db, 'query', async (sql) => {
+  t.mock.method(db, 'queryRead', async (sql) => {
     if (/SELECT[\s\S]*FROM books/i.test(sql)) {
       return {
         rows: [{
@@ -1063,7 +1063,7 @@ test('POST /api/cart succeeds when catalog book cover is null', async (t) => {
   const userId = 'user-uuid-1';
   const token = makeToken(userId);
 
-  t.mock.method(db, 'query', async (sql) => {
+  t.mock.method(db, 'queryRead', async (sql) => {
     if (/SELECT[\s\S]*FROM books/i.test(sql)) {
       return {
         rows: [{
@@ -1138,7 +1138,7 @@ test('POST /api/cart serializes concurrent writes for the same cart key', async 
   let lockReleased = Promise.resolve();
   let nextId = 1;
 
-  t.mock.method(db, 'query', async (sql) => {
+  t.mock.method(db, 'queryRead', async (sql) => {
     if (/SELECT[\s\S]*FROM books/i.test(sql)) {
       return {
         rows: [{
@@ -1264,7 +1264,7 @@ test('POST /api/cart serializes concurrent writes for the same cart key', async 
 test('POST /api/cart returns 404 when the catalog item does not exist', async (t) => {
   const token = makeToken('user-uuid-1');
 
-  t.mock.method(db, 'query', async () => {
+  t.mock.method(db, 'queryRead', async () => {
     return { rows: [] };
   });
 
@@ -1291,7 +1291,7 @@ test('POST /api/cart increments quantity for existing cart rows', async (t) => {
   const catalogCalls = [];
   const writeCalls = [];
 
-  t.mock.method(db, 'query', async (sql, params) => {
+  t.mock.method(db, 'queryRead', async (sql, params) => {
     catalogCalls.push({ sql, params });
 
     if (/SELECT[\s\S]*FROM books/i.test(sql)) {
@@ -1381,7 +1381,7 @@ test('POST /api/cart returns 500 when cart write fails', async (t) => {
   const token = makeToken('user-uuid-1');
   const calls = [];
 
-  t.mock.method(db, 'query', async (sql, params) => {
+  t.mock.method(db, 'queryRead', async (sql, params) => {
     calls.push({ sql, params });
 
     if (/SELECT[\s\S]*FROM books/i.test(sql)) {
@@ -1714,7 +1714,7 @@ test('GET /api/orders returns authenticated user purchase history ordered by pur
   const token = makeToken(userId);
   const calls = [];
 
-  t.mock.method(db, 'query', async (sql, params) => {
+  t.mock.method(db, 'queryRead', async (sql, params) => {
     calls.push({ sql, params });
 
     if (sql.includes('FROM orders')) {

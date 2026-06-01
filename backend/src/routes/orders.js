@@ -33,7 +33,7 @@ function extractBookVolume(bookId) {
 }
 
 router.get('/api/orders', ordersLimiter, requireAuth, asyncHandler(async (req, res) => {
-  const ordersResult = await db.query(
+  const ordersResult = await db.queryRead(
     `SELECT id, user_id, total_amount, status, created_at
      FROM orders
      WHERE user_id = $1
@@ -46,7 +46,7 @@ router.get('/api/orders', ordersLimiter, requireAuth, asyncHandler(async (req, r
   }
 
   const orderIds = ordersResult.rows.map((order) => order.id);
-  const itemsResult = await db.query(
+  const itemsResult = await db.queryRead(
     `SELECT oi.id, oi.order_id, oi.book_id, oi.title, oi.unit_price, oi.quantity, oi.line_total,
             COALESCE(NULLIF(oi.cover, ''), b.cover, '') AS cover
      FROM order_items AS oi

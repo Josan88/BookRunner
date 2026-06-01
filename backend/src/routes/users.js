@@ -78,7 +78,7 @@ router.post('/api/users', authLimiter, asyncHandler(async (req, res) => {
   }
 
   // --- LOGIN ---
-  const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+  const result = await db.queryRead('SELECT * FROM users WHERE email = $1', [email]);
   const user = result.rows[0];
 
   if (!user) {
@@ -105,7 +105,7 @@ router.get('/api/users/id/:id', profileLimiter, requireAuth, asyncHandler(async 
     return res.status(403).json({ error: 'Forbidden' });
   }
 
-  const result = await db.query(
+  const result = await db.queryRead(
     'SELECT id, name, email, created_at FROM users WHERE id = $1',
     [id],
   );

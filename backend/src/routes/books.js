@@ -46,7 +46,7 @@ const queryBooks = async () => {
   let latestError = null;
   for (const sql of fallbackQueries) {
     try {
-      return await db.query(sql);
+      return await db.queryRead(sql);
     } catch (error) {
       if (error?.code !== POSTGRES_UNDEFINED_COLUMN) {
         throw error;
