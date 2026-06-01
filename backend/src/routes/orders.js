@@ -83,10 +83,12 @@ router.post('/api/orders', ordersLimiter, requireAuth, asyncHandler(async (req, 
     return res.status(400).json({ error: 'cart_item_ids is required' });
   }
 
-  await db.query('BEGIN');
+  const client = await db.connect();
 
   try {
-    const cartItemsResult = await db.query(
+    await client.query('BEGIN');
+
+    const cartItemsResult = await client.query(
       `SELECT id, book_id, title, volume, cover, unit_price, quantity
        FROM cart_items
        WHERE user_id = $1 AND id = ANY($2::uuid[])
@@ -95,7 +97,7 @@ router.post('/api/orders', ordersLimiter, requireAuth, asyncHandler(async (req, 
     );
 
     if (cartItemsResult.rows.length !== cartItemIds.length) {
-      await db.query('ROLLBACK');
+      await client.query('ROLLBACK');
       return res.status(404).json({ error: 'Cart item not found' });
     }
 
@@ -104,7 +106,7 @@ router.post('/api/orders', ordersLimiter, requireAuth, asyncHandler(async (req, 
       0,
     );
 
-    const orderResult = await db.query(
+    const orderResult = await client.query(
       'INSERT INTO orders (user_id, total_amount) VALUES ($1, $2) RETURNING id',
       [req.user.sub, totalAmount],
     );
@@ -114,23 +116,29 @@ router.post('/api/orders', ordersLimiter, requireAuth, asyncHandler(async (req, 
     for (const item of cartItemsResult.rows) {
       const lineTotal = Number(item.unit_price) * Number(item.quantity);
 
-      await db.query(
+      await client.query(
         `INSERT INTO order_items (order_id, book_id, title, cover, unit_price, quantity, line_total)
          VALUES ($1, $2, $3, $4, $5, $6, $7)`,
         [orderId, item.book_id, item.title, item.cover, item.unit_price, item.quantity, lineTotal],
       );
     }
 
-    await db.query(
+    await client.query(
       'DELETE FROM cart_items WHERE user_id = $1 AND id = ANY($2::uuid[])',
       [req.user.sub, cartItemIds],
     );
 
-    await db.query('COMMIT');
+    await client.query('COMMIT');
     return res.status(201).json({ success: true, data: { id: orderId } });
   } catch (error) {
-    await db.query('ROLLBACK');
+    try {
+      await client.query('ROLLBACK');
+    } catch {
+      // ignore rollback errors and preserve original error context
+    }
     throw error;
+  } finally {
+    client.release();
   }
 }));
 

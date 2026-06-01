@@ -26,7 +26,7 @@ async function findCatalogItem({ bookId, bookTitle, volume }) {
 
   const volNumber = requestedVolume.replace('Vol ', '');
 
-  const result = await db.query(
+  const result = await db.queryRead(
     `SELECT book_id, title, volume, cover, price
      FROM books
      WHERE LOWER(title) = LOWER($1) AND volume = $2
