@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   npm-test:
-    name: Run npm tests
+    name: Backend Jest + Supertest tests
     runs-on: ubuntu-latest
     defaults:
       run:
